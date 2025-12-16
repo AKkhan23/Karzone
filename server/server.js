@@ -16,7 +16,7 @@ app.use(express.json());
 
 app.use(
   cors({
-    origin: process.env.Frontend_URL,
+    origin: "https://karzone-4rrno0wwk-azim-khans-projects-e5bdc5a4.vercel.app",
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
   })

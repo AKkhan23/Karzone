@@ -9,7 +9,7 @@ export default defineConfig({
   server: {
     proxy: {
       "/api": {
-        target: "https://karzone-z9pw.onrender.com",
+        target: import.meta.env.VITE_BACKEND_BASE_URL,
         changeOrigin: true,
         secure: false,
       },

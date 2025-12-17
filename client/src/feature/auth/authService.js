@@ -5,9 +5,10 @@ import axios from "axios";
 
 // REGISTER
 const register = async (formData) => {
-  const response = await axios.post("/api/auth/register", formData, {
+  const response = await axios.post("https://karzone-z9pw.onrender.com/api/auth/register", formData, {
     withCredentials: true, // optional if using cookies
   });
+
 
   if (response.data) {
     localStorage.setItem("user", JSON.stringify(response.data));
@@ -18,7 +19,7 @@ const register = async (formData) => {
 
 // LOGIN
 const login = async (formData) => {
-  const response = await axios.post("/api/auth/login", formData, {
+  const response = await axios.post("https://karzone-z9pw.onrender.com/api/auth/login", formData, {
     withCredentials: true, // optional
   });
 

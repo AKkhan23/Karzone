@@ -2,7 +2,7 @@
 const dotenv = require("dotenv");
 const connectDB = require("./config/dbConfig");
 const colors = require("colors");
-const cors = require("cors");
+// const cors = require("cors");
 
 dotenv.config();
 connectDB();

@@ -1,6 +1,6 @@
  import axios from "axios";
 
-const API_BASE = "/api/booking/";
+const API_BASE = "https://karzone-z9pw.onrender.com/api/booking";
 
 // Create booking
 const addbooking = async (formData, token) => {

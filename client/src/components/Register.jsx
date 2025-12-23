@@ -22,6 +22,12 @@ export default function Register() {
     password: "",
   });
 
+
+  if (user) {
+    navigate("/");
+    
+  }
+
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -30,7 +36,6 @@ export default function Register() {
   const handleSubmit = (e) => {
     e.preventDefault();
     dispatch(userRegister(formData));
-    navigate("/")
   };
 
   return (

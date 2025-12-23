@@ -1,18 +1,16 @@
-// register page code ///
+ // register page code ///
 
-import {Mail, Phone, Lock, User } from "lucide-react";
-import {motion} from "framer-motion";
+import { Mail, Phone, Lock, User, Eye, EyeOff } from "lucide-react";
+import { motion } from "framer-motion";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { userRegister } from "../feature/auth/authSlice";
 import { useNavigate } from "react-router-dom";
-// import { userRegister } from "../redux/authSlice"; // <-- your action
 
 export default function Register() {
   const dispatch = useDispatch();
-  const navigate=useNavigate();
+  const navigate = useNavigate();
   const { user } = useSelector((state) => state.auth);
-
 
   // FORM STATE
   const [formData, setFormData] = useState({
@@ -22,15 +20,17 @@ export default function Register() {
     password: "",
   });
 
+  // PASSWORD SHOW / HIDE STATE
+  const [showPassword, setShowPassword] = useState(false);
 
   if (user) {
     navigate("/");
-    
   }
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
+
   const { name, email, phone, password } = formData;
 
   const handleSubmit = (e) => {
@@ -118,14 +118,27 @@ export default function Register() {
           className="flex items-center gap-3 bg-white/30 border border-white/40 rounded-2xl p-3 backdrop-blur-md"
         >
           <Lock className="w-5 h-5 text-white" />
+
           <input
-            type="password"
+            type={showPassword ? "text" : "password"}
             name="password"
             placeholder="Password"
             value={password}
             onChange={handleChange}
             className="w-full bg-transparent text-white placeholder-white/70 outline-none"
           />
+
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="text-white"
+          >
+            {showPassword ? (
+              <EyeOff className="w-5 h-5" />
+            ) : (
+              <Eye className="w-5 h-5" />
+            )}
+          </button>
         </motion.div>
 
         {/* BUTTON */}

@@ -78,7 +78,7 @@ export default function AddCar() {
     const carData = {
       name,
       phone,
-      carOwnerName,
+      carOwnerName, // added carOwnerName to the data being sent to the server
       shopAddress,
       brand,
       category,

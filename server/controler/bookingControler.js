@@ -14,9 +14,16 @@ const addBooking = async (req, res) => {
     const { carId, startDate, endDate } = req.body;
 
     // Required fields check
-    if (!carId || !startDate || !endDate) {
-      return res.status(400).json({ message: "carId, startDate and endDate are required" });
-    }
+    // if (!carId || !startDate || !endDate||!contactNumber) {
+    //   return res.status(400).json({ message: "carId, startDate and endDate are required" });
+    // }
+    if (!carId || !startDate || !endDate || !contactNumber) {
+  return res.status(400).json({
+    message: "carId, startDate, endDate and contactNumber are required"
+  });
+}
+
+
 
     // Convert dates
     const start = new Date(startDate);
@@ -51,6 +58,7 @@ const addBooking = async (req, res) => {
       endDate: end,
       totalDays,
       totalPrice,
+      contactNumber: req.body.contactNumber || "",
     });
 
     res.status(201).json({

@@ -14,13 +14,9 @@ export default function AllCars() {
   const [selectedCar, setSelectedCar] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const { cars, isError, message } = useSelector(
-    (state) => state.admin,
-  );
+  const { cars, isError, message } = useSelector((state) => state.admin);
 
 
-  console.log(cars)
-  
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -173,38 +169,122 @@ export default function AllCars() {
 
       {isModalOpen && selectedCar && (
         <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
-          <div className="bg-white rounded-xl p-6 w-[500px] relative">
+          <div className="bg-white rounded-xl p-6 w-[500px] max-h-[90vh] overflow-y-auto relative">
+            {/* Close Button */}
             <button
               onClick={() => setIsModalOpen(false)}
-              className="absolute top-3 right-3 text-gray-500 text-xl"
+              className="absolute top-3 right-3 text-gray-500 text-xl hover:text-gray-700 z-10"
             >
               ✕
             </button>
 
-            <img
-              src={selectedCar.imageUrl}
-              className="w-full h-52 object-cover rounded-lg mb-4"
-            />
+            {/* Car Image */}
+            <div className="relative">
+              <img
+                src={selectedCar.imageUrl}
+                alt={selectedCar.name}
+                className="w-full h-52 object-cover rounded-lg mb-4"
+              />
+              {selectedCar.isAvailable ? (
+                <span className="absolute top-2 left-2 bg-green-500 text-white px-3 py-1 rounded-full text-sm font-medium">
+                  Available
+                </span>
+              ) : (
+                <span className="absolute top-2 left-2 bg-red-500 text-white px-3 py-1 rounded-full text-sm font-medium">
+                  Rented
+                </span>
+              )}
+            </div>
 
+            {/* Car Name */}
             <h2 className="text-2xl font-bold mb-2">{selectedCar.name}</h2>
 
-            <div className="space-y-2 text-gray-700">
-              <p>
-                <strong>Brand:</strong> {selectedCar.brand}
+            {/* Description */}
+            <div className="mb-4">
+              <p className="text-gray-700 whitespace-pre-line">
+                {selectedCar.description || "No description available."}
               </p>
-              <p>
-                <strong>Category:</strong> {selectedCar.category}
-              </p>
-              <p>
-                <strong>Fuel Type:</strong> {selectedCar.fuelType}
-              </p>
-              <p>
-                <strong>Price / Day:</strong> ₹{selectedCar.price}
-              </p>
-              <p>
-                <strong>Status:</strong>{" "}
-                {selectedCar.isAvailable ? "Available" : "Rented"}
-              </p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              {/* Left Column - Car Details */}
+              <div className="space-y-3">
+                <div className="bg-gray-50 p-3 rounded-lg">
+                  <h3 className="font-bold text-gray-600 mb-2">Car Details</h3>
+                  <div className="space-y-2">
+                    <p>
+                      <strong className="text-gray-700">Brand:</strong>{" "}
+                      <span className="text-gray-900">{selectedCar.brand}</span>
+                    </p>
+                    <p>
+                      <strong className="text-gray-700">Category:</strong>{" "}
+                      <span className="text-gray-900">
+                        {selectedCar.category}
+                      </span>
+                    </p>
+                    <p>
+                      <strong className="text-gray-700">Fuel Type:</strong>{" "}
+                      <span className="text-gray-900">
+                        {selectedCar.fuelType}
+                      </span>
+                    </p>
+                    <p>
+                      <strong className="text-gray-700">Price / Day:</strong>{" "}
+                      <span className="text-green-600 font-bold">
+                        ₹{selectedCar.price}
+                      </span>
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Right Column - Owner Details */}
+              <div className="space-y-3">
+                <div className="bg-gray-50 p-3 rounded-lg">
+                  <h3 className="font-bold text-gray-600 mb-2">
+                    Owner Details
+                  </h3>
+                  <div className="space-y-2">
+                    <p>
+                      <strong className="text-gray-700">Owner Name:</strong>{" "}
+                      <span className="text-gray-900">
+                        {selectedCar.carOwnerName}
+                      </span>
+                    </p>
+                    <p>
+                      <strong className="text-gray-700">Phone:</strong>{" "}
+                      <span className="text-gray-900">{selectedCar.phone}</span>
+                    </p>
+                    <p>
+                      <strong className="text-gray-700">Shop Address:</strong>{" "}
+                      <span className="text-gray-900">
+                        {selectedCar.shopeAdress}
+                      </span>
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex gap-3 mt-6 pt-4 border-t">
+              <button
+                className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition flex items-center justify-center gap-2"
+                onClick={() =>
+                  (window.location.href = `tel:${selectedCar.phone}`)
+                }
+              >
+                <span>📞 Call Owner</span>
+              </button>
+
+              <button
+                className="flex-1 bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition flex items-center justify-center gap-2"
+                onClick={() =>
+                  window.open(`https://wa.me/91${selectedCar.phone}`, "_blank")
+                }
+              >
+                <span>💬 WhatsApp</span>
+              </button>
             </div>
           </div>
         </div>

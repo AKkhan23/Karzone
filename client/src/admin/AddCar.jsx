@@ -8,6 +8,9 @@ import { useNavigate } from "react-router-dom";
 // Initial state to keep code DRY (Don't Repeat Yourself)
 const initialFormState = {
   name: "",
+  phone: "",
+  carOwnerName: "",
+  shopeAdress: "",
   brand: "",
   category: "",
   description: "",
@@ -20,15 +23,18 @@ const initialFormState = {
 export default function AddCar() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  
+
   // Redux store se edit state nikalna
   const { edit } = useSelector((state) => state.admin);
-  
+
   const [formData, setFormData] = useState(initialFormState);
 
   // Destructuring for cleaner JSX
   const {
     name,
+    phone,
+    carOwnerName,
+    shopAddress,  
     brand,
     category,
     description,
@@ -112,7 +118,9 @@ export default function AddCar() {
             {edit?.isEdit ? "Update Car Details" : "Add New Car"}
           </h1>
           <p className="text-gray-600">
-            {edit?.isEdit ? "Modify existing vehicle info" : "Add a new vehicle to your inventory"}
+            {edit?.isEdit
+              ? "Modify existing vehicle info"
+              : "Add a new vehicle to your inventory"}
           </p>
         </div>
       </div>
@@ -122,7 +130,10 @@ export default function AddCar() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Name Input */}
             <div>
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                htmlFor="name"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
                 Car Name *
               </label>
               <input
@@ -136,10 +147,67 @@ export default function AddCar() {
                 placeholder="e.g., Tesla Model 3"
               />
             </div>
+            {/* car owner name */}
+            <div>
+              <label
+                htmlFor="name"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
+                Car Owner Name *
+              </label>
+              <input
+                type="text"
+                id="carOwnerName"
+                name="carOwnerName"
+                value={carOwnerName}
+                onChange={handleChange}
+                required
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                placeholder="e.g., Tesla Model 3"
+              />
+            </div>
+
+            {/* Phone Input */}
+             <div>
+              <label  className="block text-sm font-medium text-gray-700 mb-2">
+                Phone *
+              </label>
+              <input
+                type="text"
+                id="phone"
+                name="phone"
+                value={phone}
+                onChange={handleChange}
+                required
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                placeholder="e.g., Tesla Model 3"
+              />
+            </div>
+
+            {/* Shop Address Input */}
+
+             <div>
+              <label htmlFor="shopAddress" className="block text-sm font-medium text-gray-700 mb-2">
+                Shop Address *
+              </label>
+              <input
+                type="text"
+                id="shopAddress"
+                name="shopAddress"
+                value={shopAddress}
+                onChange={handleChange}
+                required
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                placeholder="e.g., Tesla Model 3"
+              />
+            </div>
 
             {/* Brand Input */}
             <div>
-              <label htmlFor="brand" className="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                htmlFor="brand"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
                 Brand *
               </label>
               <input
@@ -156,7 +224,10 @@ export default function AddCar() {
 
             {/* Category Input */}
             <div>
-              <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                htmlFor="category"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
                 Category *
               </label>
               <input
@@ -173,7 +244,10 @@ export default function AddCar() {
 
             {/* Price Input */}
             <div>
-              <label htmlFor="price" className="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                htmlFor="price"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
                 Price per Day (₹) *
               </label>
               <input
@@ -191,7 +265,10 @@ export default function AddCar() {
 
             {/* Fuel Type Input */}
             <div>
-              <label htmlFor="fuelType" className="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                htmlFor="fuelType"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
                 Fuel Type *
               </label>
               <select
@@ -210,7 +287,10 @@ export default function AddCar() {
 
             {/* Image URL Input */}
             <div>
-              <label htmlFor="imageUrl" className="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                htmlFor="imageUrl"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
                 Image URL *
               </label>
               <input
@@ -228,7 +308,10 @@ export default function AddCar() {
 
           {/* Description Input */}
           <div>
-            <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
+            <label
+              htmlFor="description"
+              className="block text-sm font-medium text-gray-700 mb-2"
+            >
               Description *
             </label>
             <textarea
@@ -253,7 +336,10 @@ export default function AddCar() {
               onChange={handleChange}
               className="h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
             />
-            <label htmlFor="isAvailable" className="text-sm font-medium text-gray-700">
+            <label
+              htmlFor="isAvailable"
+              className="text-sm font-medium text-gray-700"
+            >
               Available for Rent
             </label>
           </div>
@@ -269,7 +355,8 @@ export default function AddCar() {
                 alt="Car preview"
                 className="h-48 w-full object-cover rounded-lg shadow-sm"
                 onError={(e) => {
-                  e.target.src = "https://via.placeholder.com/400x200?text=Invalid+Image+URL";
+                  e.target.src =
+                    "https://via.placeholder.com/400x200?text=Invalid+Image+URL";
                 }}
               />
             </div>

@@ -6,6 +6,9 @@ const bookingModel = require("../model/bookingModel");
 const addCar = async (req, res) => {
   const {
     name,
+    phone,
+    carOwnerName,
+    shopeAdress,
     brand,
     imageUrl,
     price,
@@ -22,20 +25,26 @@ const addCar = async (req, res) => {
     !price ||
     !description ||
     !fuelType ||
-    !category
+    !category ||
+    !phone ||
+    !carOwnerName ||
+    !shopeAdress
   ) {
     return res.status(400).json({ msg: "Please fill all details" });
   }
 
   const newCar = await carModels.create({
     name,
+    phone,
+    carOwnerName,
+    shopeAdress,
     brand,
     imageUrl,
     price,
     description,
     fuelType,
     category,
-    isAvailable, // ⭐ VERY IMPORTANT ⭐
+    isAvailable, 
   });
 
   res.status(201).json(newCar);

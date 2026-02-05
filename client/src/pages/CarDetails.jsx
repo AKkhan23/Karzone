@@ -16,6 +16,7 @@ export default function CarDetails() {
 
   // Move toast to useEffect
   useEffect(() => {
+    window.scrollTo(0, 0);
     if (isSucsess) {
       toast.success("Booking Confirm");
 

@@ -2,6 +2,9 @@
 
 const carSchema = new mongoose.Schema({
   name: { type: String, required: true },
+  phone: { type: String, required: true },
+  carOwnerName: { type: String, required: true },
+  shopeAdress: { type: String, required: true },
   brand: { type: String, required: true },
   category: { type: String, required: true },
   description: { type: String, required: true },

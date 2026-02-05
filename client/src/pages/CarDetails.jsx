@@ -1,4 +1,4 @@
- import { useParams, Link } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchDeatail } from "../feature/adim/adminSlice";
 import { useEffect, useState } from "react";
@@ -21,7 +21,6 @@ export default function CarDetails() {
       toast.success("Booking Confirm");
 
       dispatch(resetBookingState());
-      
     }
   }, [isSucsess, dispatch]);
 
@@ -29,7 +28,8 @@ export default function CarDetails() {
     dispatch(fetchDeatail(id));
   }, [id, dispatch]);
 
-  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+  const handleChange = (e) =>
+    setForm({ ...form, [e.target.name]: e.target.value });
 
   const handleBooking = () => {
     if (!form.startDate || !form.endDate) {
@@ -51,8 +51,8 @@ export default function CarDetails() {
 
         <div className="bg-white rounded-xl shadow-lg p-6 grid grid-cols-1 lg:grid-cols-2 gap-10">
           <img
-            src={car.imageUrl || car.image || car.photo || null}
-            alt={car.name}
+            src={car?.imageUrl || car.image || car.photo || null}
+            alt={car?.name}
             className="w-full rounded-lg"
           />
 
@@ -60,8 +60,30 @@ export default function CarDetails() {
             <h1 className="text-4xl font-bold">{car.name}</h1>
             <p className="text-gray-600">{car.brand}</p>
             <p className="mt-4">{car.description}</p>
-            <p className="text-3xl font-bold text-blue-600 mt-6">₹{car.price}/day</p>
 
+            <p className="text-3xl font-bold text-blue-600 mt-6">
+              ₹{car?.price}/day
+            </p>
+
+            {/* ⭐ NEW UI SECTION */}
+            <div className="mt-6 border-t pt-4 space-y-2">
+              <p>
+                <span className="font-semibold">Car Owner:</span>{" "}
+                {car?.carOwnerName || "N/A"}
+              </p>
+
+              <p>
+                <span className="font-semibold">Phone:</span>{" "}
+                {car?.phone || "N/A"}
+              </p>
+
+              <p>
+                <span className="font-semibold">Shop Address:</span>{" "}
+                {car?.shopeAdress || "N/A"}
+              </p>
+            </div>
+
+            {/* Booking Section */}
             <div className="mt-10">
               <h2 className="text-2xl font-bold mb-4">Book Now</h2>
 
@@ -77,8 +99,7 @@ export default function CarDetails() {
               <label className="block mb-1 font-semibold">End Date</label>
               <input
                 type="date"
-                 value={form.endDate}
-
+                value={form.endDate}
                 name="endDate"
                 onChange={handleChange}
                 className="w-full mb-5 p-3 border rounded"

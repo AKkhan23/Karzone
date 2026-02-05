@@ -51,7 +51,7 @@ export default function AddCar() {
         name: edit.editCar.name || "",
         phone: edit.editCar.phone || "",
         carOwnerName: edit.editCar.carOwnerName || "",
-        shopAddress: edit.editCar.shopAddress || "",
+        shopAddress: edit.editCar.shopeAdress || "",
         brand: edit.editCar.brand || "",
         category: edit.editCar.category || "",
         description: edit.editCar.description || "",

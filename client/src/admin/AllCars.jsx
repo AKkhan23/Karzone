@@ -16,7 +16,6 @@ export default function AllCars() {
 
   const { cars, isError, message } = useSelector((state) => state.admin);
 
-
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -168,123 +167,232 @@ export default function AllCars() {
       {/* ================= MODAL ================= */}
 
       {isModalOpen && selectedCar && (
-        <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
-          <div className="bg-white rounded-xl p-6 w-[500px] max-h-[90vh] overflow-y-auto relative">
-            {/* Close Button */}
-            <button
-              onClick={() => setIsModalOpen(false)}
-              className="absolute top-3 right-3 text-gray-500 text-xl hover:text-gray-700 z-10"
+        <div className="fixed inset-0 z-50">
+          {/* Backdrop with blur and fade animation */}
+          <div
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-all duration-300 ease-out"
+            onClick={() => setIsModalOpen(false)}
+          />
+
+          {/* Modal Container with slide-up animation */}
+          <div className="fixed inset-0 flex items-center justify-center p-4">
+            <div
+              className="bg-white w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden transform transition-all duration-500 ease-out animate-in slide-in-from-bottom-10 fade-in"
+              onClick={(e) => e.stopPropagation()}
             >
-              ✕
-            </button>
+              {/* Modern Header with gradient */}
+              <div className="relative h-60 overflow-hidden group">
+                {/* Gradient overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent z-10" />
 
-            {/* Car Image */}
-            <div className="relative">
-              <img
-                src={selectedCar.imageUrl}
-                alt={selectedCar.name}
-                className="w-full h-52 object-cover rounded-lg mb-4"
-              />
-              {selectedCar.isAvailable ? (
-                <span className="absolute top-2 left-2 bg-green-500 text-white px-3 py-1 rounded-full text-sm font-medium">
-                  Available
-                </span>
-              ) : (
-                <span className="absolute top-2 left-2 bg-red-500 text-white px-3 py-1 rounded-full text-sm font-medium">
-                  Rented
-                </span>
-              )}
-            </div>
+                {/* Car Image with zoom effect */}
+                <img
+                  src={selectedCar.imageUrl}
+                  alt={selectedCar.name}
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                />
 
-            {/* Car Name */}
-            <h2 className="text-2xl font-bold mb-2">{selectedCar.name}</h2>
+                {/* Close button - Modern */}
+                <button
+                  onClick={() => setIsModalOpen(false)}
+                  className="absolute top-4 right-4 z-20 w-10 h-10 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white/30 transition-all hover:scale-110"
+                >
+                  <span className="text-white text-xl">✕</span>
+                </button>
 
-            {/* Description */}
-            <div className="mb-4">
-              <p className="text-gray-700 whitespace-pre-line">
-                {selectedCar.description || "No description available."}
-              </p>
-            </div>
+                {/* Availability Badge - Modern */}
+                <div className="absolute bottom-4 left-4 z-20">
+                  <span
+                    className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold shadow-lg ${
+                      selectedCar.isAvailable
+                        ? "bg-gradient-to-r from-emerald-500 to-green-500 text-white"
+                        : "bg-gradient-to-r from-rose-500 to-red-500 text-white"
+                    }`}
+                  >
+                    {selectedCar.isAvailable ? (
+                      <>
+                        <span className="w-2 h-2 bg-white rounded-full mr-2 animate-pulse"></span>
+                        Available Now
+                      </>
+                    ) : (
+                      "Currently Rented"
+                    )}
+                  </span>
+                </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              {/* Left Column - Car Details */}
-              <div className="space-y-3">
-                <div className="bg-gray-50 p-3 rounded-lg">
-                  <h3 className="font-bold text-gray-600 mb-2">Car Details</h3>
-                  <div className="space-y-2">
-                    <p>
-                      <strong className="text-gray-700">Brand:</strong>{" "}
-                      <span className="text-gray-900">{selectedCar.brand}</span>
+                {/* Car Name on Image */}
+                <div className="absolute bottom-4 right-4 z-20 text-right">
+                  <h2 className="text-3xl font-bold text-white drop-shadow-lg">
+                    {selectedCar.name}
+                  </h2>
+                  <p className="text-white/90 font-medium">
+                    {selectedCar.brand} • {selectedCar.category}
+                  </p>
+                </div>
+              </div>
+
+              {/* Content Area */}
+              <div className="p-8">
+                {/* Price Tag - Modern */}
+                <div className="flex items-center justify-between mb-6 pb-6 border-b">
+                  <div>
+                    <p className="text-gray-500 text-sm font-medium">
+                      Daily Rental
                     </p>
-                    <p>
-                      <strong className="text-gray-700">Category:</strong>{" "}
-                      <span className="text-gray-900">
-                        {selectedCar.category}
-                      </span>
-                    </p>
-                    <p>
-                      <strong className="text-gray-700">Fuel Type:</strong>{" "}
-                      <span className="text-gray-900">
-                        {selectedCar.fuelType}
-                      </span>
-                    </p>
-                    <p>
-                      <strong className="text-gray-700">Price / Day:</strong>{" "}
-                      <span className="text-green-600 font-bold">
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
                         ₹{selectedCar.price}
                       </span>
+                      <span className="text-gray-400">/ day</span>
+                    </div>
+                  </div>
+
+                  <div className="text-right">
+                    <p className="text-gray-500 text-sm font-medium">
+                      Fuel Type
                     </p>
+                    <div className="flex items-center gap-2">
+                      <span
+                        className={`w-3 h-3 rounded-full ${selectedCar.fuelType === "Petrol" ? "bg-orange-500" : "bg-blue-500"}`}
+                      ></span>
+                      <span className="font-semibold text-gray-800">
+                        {selectedCar.fuelType}
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              {/* Right Column - Owner Details */}
-              <div className="space-y-3">
-                <div className="bg-gray-50 p-3 rounded-lg">
-                  <h3 className="font-bold text-gray-600 mb-2">
-                    Owner Details
+                {/* Description */}
+                <div className="mb-8">
+                  <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                    <span className="w-1.5 h-6 bg-blue-500 rounded-full"></span>
+                    Description
                   </h3>
-                  <div className="space-y-2">
-                    <p>
-                      <strong className="text-gray-700">Owner Name:</strong>{" "}
-                      <span className="text-gray-900">
-                        {selectedCar.carOwnerName}
-                      </span>
-                    </p>
-                    <p>
-                      <strong className="text-gray-700">Phone:</strong>{" "}
-                      <span className="text-gray-900">{selectedCar.phone}</span>
-                    </p>
-                    <p>
-                      <strong className="text-gray-700">Shop Address:</strong>{" "}
-                      <span className="text-gray-900">
-                        {selectedCar.shopeAdress}
-                      </span>
-                    </p>
+                  <p className="text-gray-600 leading-relaxed bg-gray-50 p-4 rounded-xl border border-gray-100">
+                    {selectedCar.description || "No description available."}
+                  </p>
+                </div>
+
+                {/* Details Grid - Modern Cards */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                  {/* Car Specifications */}
+                  <div className="bg-gradient-to-br from-gray-50 to-white p-5 rounded-xl border border-gray-200 shadow-sm">
+                    <h3 className="font-bold text-gray-800 mb-4 flex items-center gap-2">
+                      <span className="text-blue-500">🚗</span>
+                      Car Specifications
+                    </h3>
+                    <div className="space-y-4">
+                      <div className="flex justify-between items-center py-2 border-b border-gray-100">
+                        <span className="text-gray-600">Brand</span>
+                        <span className="font-semibold text-gray-800">
+                          {selectedCar.brand}
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center py-2 border-b border-gray-100">
+                        <span className="text-gray-600">Category</span>
+                        <span className="font-semibold text-gray-800">
+                          {selectedCar.category}
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center py-2 border-b border-gray-100">
+                        <span className="text-gray-600">Fuel Type</span>
+                        <span className="font-semibold text-gray-800">
+                          {selectedCar.fuelType}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Owner Information */}
+                  <div className="bg-gradient-to-br from-gray-50 to-white p-5 rounded-xl border border-gray-200 shadow-sm">
+                    <h3 className="font-bold text-gray-800 mb-4 flex items-center gap-2">
+                      <span className="text-emerald-500">👤</span>
+                      Owner Information
+                    </h3>
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-3 py-2">
+                        <div className="w-10 h-10 bg-gradient-to-br from-blue-100 to-blue-50 rounded-full flex items-center justify-center">
+                          <span className="text-blue-600 font-semibold">
+                            {selectedCar.carOwnerName.charAt(0)}
+                          </span>
+                        </div>
+                        <div>
+                          <p className="font-semibold text-gray-800">
+                            {selectedCar.carOwnerName}
+                          </p>
+                          <p className="text-sm text-gray-500">Car Owner</p>
+                        </div>
+                      </div>
+
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center">
+                            <span className="text-blue-600">📞</span>
+                          </div>
+                          <div>
+                            <p className="font-medium text-gray-800">
+                              {selectedCar.phone}
+                            </p>
+                            <p className="text-sm text-gray-500">
+                              Contact Number
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="flex items-start gap-3">
+                          <div className="w-8 h-8 bg-emerald-50 rounded-lg flex items-center justify-center mt-1">
+                            <span className="text-emerald-600">📍</span>
+                          </div>
+                          <div>
+                            <p className="font-medium text-gray-800">
+                              {selectedCar.shopeAdress}
+                            </p>
+                            <p className="text-sm text-gray-500">
+                              Shop Location
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
+
+                {/* Action Buttons - Modern */}
+                <div className="flex flex-col sm:flex-row gap-3 pt-6 border-t border-gray-200">
+                  <button
+                    onClick={() =>
+                      window.open(
+                        `https://wa.me/91${selectedCar.phone}`,
+                        "_blank",
+                      )
+                    }
+                    className="flex-1 bg-gradient-to-r from-emerald-500 to-green-500 text-white py-3.5 px-6 rounded-xl hover:shadow-lg transition-all duration-300 hover:scale-[1.02] flex items-center justify-center gap-3 font-semibold"
+                  >
+                    <span className="text-xl">💬</span>
+                    <span>Message on WhatsApp</span>
+                  </button>
+
+                  <button
+                    onClick={() =>
+                      (window.location.href = `tel:${selectedCar.phone}`)
+                    }
+                    className="flex-1 bg-gradient-to-r from-blue-500 to-cyan-500 text-white py-3.5 px-6 rounded-xl hover:shadow-lg transition-all duration-300 hover:scale-[1.02] flex items-center justify-center gap-3 font-semibold"
+                  >
+                    <span className="text-xl">📞</span>
+                    <span>Call Now</span>
+                  </button>
+                </div>
+
+                {/* Footer Note */}
+                <p className="text-center text-gray-400 text-sm mt-6 pt-4 border-t border-gray-100">
+                  Car listed on{" "}
+                  {new Date(selectedCar.createdAt).toLocaleDateString("en-IN", {
+                    day: "numeric",
+                    month: "long",
+                    year: "numeric",
+                  })}
+                </p>
               </div>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex gap-3 mt-6 pt-4 border-t">
-              <button
-                className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition flex items-center justify-center gap-2"
-                onClick={() =>
-                  (window.location.href = `tel:${selectedCar.phone}`)
-                }
-              >
-                <span>📞 Call Owner</span>
-              </button>
-
-              <button
-                className="flex-1 bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition flex items-center justify-center gap-2"
-                onClick={() =>
-                  window.open(`https://wa.me/91${selectedCar.phone}`, "_blank")
-                }
-              >
-                <span>💬 WhatsApp</span>
-              </button>
             </div>
           </div>
         </div>

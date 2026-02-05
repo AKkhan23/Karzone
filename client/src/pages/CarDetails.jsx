@@ -83,15 +83,17 @@ export default function CarDetails() {
                 onChange={handleChange}
                 className="w-full mb-5 p-3 border rounded"
               />
-                <label className="block mb-1 font-semibold">Contact Number</label>
-              <input
-                type="tel"
-                 value={form.ContactNumber}
+              <label className="block mb-1 font-semibold">Contact Number</label>
 
-                name="ContactNumber"
-                onChange={handleChange}
-                className="w-full mb-5 p-3 border rounded"
+                <input
+               type="tel"
+               name="contactNumber"
+               value={form.contactNumber}
+               onChange={handleChange}
+               placeholder="Enter contact number"
+              className="w-full mb-5 p-3 border rounded"
               />
+
 
               <button
                 onClick={handleBooking}

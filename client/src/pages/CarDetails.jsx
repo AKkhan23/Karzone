@@ -83,9 +83,9 @@ export default function CarDetails() {
                 onChange={handleChange}
                 className="w-full mb-5 p-3 border rounded"
               />
-                <label className="block mb-1 font-semibold">End Date</label>
+                <label className="block mb-1 font-semibold">Contact Number</label>
               <input
-                type="date"
+                type="tel"
                  value={form.ContactNumber}
 
                 name="ContactNumber"

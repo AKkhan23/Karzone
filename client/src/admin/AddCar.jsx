@@ -77,6 +77,9 @@ export default function AddCar() {
     // Data prepare karna
     const carData = {
       name,
+      phone,
+      carOwnerName,
+      shopAddress,
       brand,
       category,
       description,

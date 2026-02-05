@@ -49,6 +49,9 @@ export default function AddCar() {
     if (edit?.isEdit && edit?.editCar) {
       setFormData({
         name: edit.editCar.name || "",
+        phone: edit.editCar.phone || "",
+        carOwnerName: edit.editCar.carOwnerName || "",
+        shopAddress: edit.editCar.shopAddress || "",
         brand: edit.editCar.brand || "",
         category: edit.editCar.category || "",
         description: edit.editCar.description || "",

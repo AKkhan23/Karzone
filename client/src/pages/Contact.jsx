@@ -29,7 +29,7 @@ export default function Contact() {
                   <h3 className="text-lg font-semibold text-gray-900">
                     Admin Name
                   </h3>
-                  <p className="text-gray-600">Azim Khan</p>
+                  <p className="text-gray-600">Moni-Patidar</p>
                 </div>
               </div>
 
@@ -41,7 +41,7 @@ export default function Contact() {
                   <h3 className="text-lg font-semibold text-gray-900">
                     Phone Number
                   </h3>
-                  <p className="text-gray-600">+91 88171 73011</p>
+                  <p className="text-gray-600">+91-7879536876</p>
                 </div>
               </div>
 

@@ -82,7 +82,7 @@ export default function AddCar() {
       name,
       phone,
       carOwnerName, // added carOwnerName to the data being sent to the server
-      shopAddress,
+      shopeAdress,
       brand,
       category,
       description,
@@ -199,8 +199,8 @@ export default function AddCar() {
               <input
                 type="text"
                 id="shopAddress"
-                name="shopAddress"
-                value={shopAddress}
+                name="shopeAdress"
+                value={shopeAdress}
                 onChange={handleChange}
                 required
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"

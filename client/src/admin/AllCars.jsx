@@ -17,6 +17,10 @@ export default function AllCars() {
   const { cars, isError, message } = useSelector(
     (state) => state.admin,
   );
+
+
+  console.log(cars)
+  
   const dispatch = useDispatch();
   const navigate = useNavigate();
 

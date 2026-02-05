@@ -13,6 +13,8 @@ export default function Home() {
     dispatch(fetchAllCars());
   }, [dispatch]);
 
+  
+
   return (
     <div>
       {/* HERO SECTION */}

@@ -128,18 +128,8 @@ const bookingSlice = createSlice({
         state.isLoading = false;
         state.isSuccess = true;
         state.isError = false;
-
-        if (action.payload?.booking) {
-          const index = state.bookings.findIndex(
-            (b) => b._id === action.payload.booking._id,
-          );
-          if (index !== -1) {
-            state.bookings[index] = action.payload.booking;
-          }
-        }
-
-        state.message =
-          action.payload?.message || "Booking cancelled successfully";
+        state.bookings = [action.payload]
+        state.message = action.payload?.message || "Booking cancelled successfully";
       })
 
       .addCase(cancelBooking.rejected, (state, action) => {

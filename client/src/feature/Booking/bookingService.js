@@ -24,7 +24,8 @@ const getUserBookings = async (token) => {
 };
 
 const cancelBooking = async (bookingId, token) => {
-  const res = await axios.put(`${API_BASE}/${bookingId}`,
+  const res = await axios.put(
+    `${API_BASE}/${bookingId}`,
     {},
     {
       headers: { Authorization: `Bearer ${token}` },

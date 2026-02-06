@@ -3,6 +3,8 @@ import {
   Mail,
   Phone,
   Calendar,
+  DollarSign,
+  IndianRupee,
   IndianRupeeIcon,
   Shield,
   CreditCard,
@@ -18,22 +20,19 @@ import { useEffect, useState } from "react";
 import {
   fetchUserBookings,
   cancelBooking,
+  resetBookingState,
 } from "../feature/Booking/bookingSlice";
-import { toast } from "react-hot-toast";
+import { toast } from "react-hot-toast"; // or your preferred toast library
 
 export default function Profile() {
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
   const [activeTab, setActiveTab] = useState("bookings");
   const [cancellingId, setCancellingId] = useState(null);
-  const [cancelSuccess, setCancelSuccess] = useState(false);
-  const [cancelError, setCancelError] = useState(false);
 
   const { bookings, isLoading, isSuccess, isError, message } = useSelector(
     (state) => state.booking,
   );
-
-  // Filter user's bookings
   const UserBookings = bookings.filter(
     (booking) => booking.user?._id === user?.id,
   );
@@ -44,48 +43,24 @@ export default function Profile() {
     }
   }, [user, dispatch]);
 
-  // Handle cancel booking with proper toast notifications
+  // Handle cancel booking success/error
   useEffect(() => {
-    // Reset local states when component mounts
-    return () => {
+    if (isSuccess && message && cancellingId) {
+      toast.success(message);
       setCancellingId(null);
-      setCancelSuccess(false);
-      setCancelError(false);
-    };
-  }, []);
+      dispatch(resetBookingState());
+    }
+    if (isError && message && cancellingId) {
+      toast.error(message);
+      setCancellingId(null);
+      dispatch(resetBookingState());
+    }
+  }, [isSuccess, isError, message, cancellingId, dispatch]);
 
   const handleCancelBooking = async (bookingId) => {
-    if (!window.confirm("Are you sure you want to cancel this booking?")) {
-      return;
-    }
-
-    setCancellingId(bookingId);
-    setCancelSuccess(false);
-    setCancelError(false);
-
-    try {
-      const result = await dispatch(cancelBooking(bookingId));
-
-      if (cancelBooking.fulfilled.match(result)) {
-        // Success toast
-        toast.success("Booking cancelled successfully!");
-        setCancelSuccess(true);
-
-        // Refresh bookings list
-        dispatch(fetchUserBookings());
-      } else if (cancelBooking.rejected.match(result)) {
-        // Error toast
-        toast.error(result.payload?.message || "Failed to cancel booking");
-        setCancelError(true);
-      }
-    } catch (error) {
-      toast.error("An error occurred while cancelling booking");
-      setCancelError(true);
-    } finally {
-      // Reset cancelling state after 2 seconds
-      setTimeout(() => {
-        setCancellingId(null);
-      }, 2000);
+    if (window.confirm("Are you sure you want to cancel this booking?")) {
+      setCancellingId(bookingId);
+      await dispatch(cancelBooking(bookingId));
     }
   };
 
@@ -494,10 +469,10 @@ export default function Profile() {
                               <button
                                 onClick={() => handleCancelBooking(booking._id)}
                                 disabled={cancellingId === booking._id}
-                                className={`px-4 py-2 text-sm font-medium text-white rounded-lg hover:shadow-lg transition-all duration-300 flex items-center gap-2 ${
+                                className={`px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-red-500 to-rose-500 rounded-lg hover:shadow-lg transition-all duration-300 flex items-center gap-2 ${
                                   cancellingId === booking._id
-                                    ? "bg-gradient-to-r from-gray-500 to-slate-500 cursor-not-allowed"
-                                    : "bg-gradient-to-r from-red-500 to-rose-500 hover:from-red-600 hover:to-rose-600"
+                                    ? "opacity-50 cursor-not-allowed"
+                                    : ""
                                 }`}
                               >
                                 {cancellingId === booking._id ? (
@@ -512,11 +487,6 @@ export default function Profile() {
                                   </>
                                 )}
                               </button>
-                            )}
-                            {booking.status === "Cancelled" && (
-                              <span className="px-4 py-2 text-sm font-medium text-red-600 bg-red-50 rounded-lg">
-                                Cancelled
-                              </span>
                             )}
                           </div>
                         </div>

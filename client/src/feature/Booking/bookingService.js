@@ -25,7 +25,7 @@ const getUserBookings = async (token) => {
 
 const cancelBooking = async (bookingId, token) => {
   const res = await axios.patch(
-    `${API_BASE}/${bookingId}/cancel`,
+    `${API_BASE}/${bookingId}`,
     {},
     {
       headers: { Authorization: `Bearer ${token}` },

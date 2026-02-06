@@ -77,7 +77,7 @@ const getMybookings = async (req, res) => {
 };  
 
 const cancelBooking=async(req,res)=>{
-  const booking = await bookingModel.findById(req.params.bid)
+  const booking=await bookingModel.findById(req.params.bid)
   if(!booking){
     res.status(404).json({msg:"Booking not found"})
   }
@@ -90,9 +90,5 @@ const cancelBooking=async(req,res)=>{
      res.status(200).json(cancelledBooking)
   }
 }
-
-
-
-
 
 module.exports = { addBooking,getMybookings,cancelBooking };

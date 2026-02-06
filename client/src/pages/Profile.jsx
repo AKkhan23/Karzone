@@ -13,26 +13,21 @@ import {
   Clock,
   CheckCircle,
   Package,
-  XCircle,
 } from "lucide-react";
 import { useSelector, useDispatch } from "react-redux";
 import { useEffect, useState } from "react";
 import {
-  fetchUserBookings,
   cancelBooking,
-  resetBookingState,
+  fetchUserBookings,
 } from "../feature/Booking/bookingSlice";
-import { toast } from "react-hot-toast"; // or your preferred toast library
+import toast from "react-hot-toast";
 
 export default function Profile() {
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
   const [activeTab, setActiveTab] = useState("bookings");
-  const [cancellingId, setCancellingId] = useState(null);
 
-  const { bookings, isSuccess, isError, message } = useSelector(
-    (state) => state.booking,
-  );
+  const bookings = useSelector((state) => state.booking.bookings) || [];
   const UserBookings = bookings.filter(
     (booking) => booking.user?._id === user?.id,
   );
@@ -43,24 +38,16 @@ export default function Profile() {
     }
   }, [user, dispatch]);
 
-  // Handle cancel booking success/error
-  useEffect(() => {
-    if (isSuccess && message && cancellingId) {
-      toast.success(message);
-      setCancellingId(null);
-      dispatch(resetBookingState());
-    }
-    if (isError && message && cancellingId) {
-      toast.error(message);
-      setCancellingId(null);
-      dispatch(resetBookingState());
-    }
-  }, [isSuccess, isError, message, cancellingId, dispatch]);
-
   const handleCancelBooking = async (bookingId) => {
-    if (window.confirm("Are you sure you want to cancel this booking?")) {
-      setCancellingId(bookingId);
-      await dispatch(cancelBooking(bookingId));
+    try {
+      await dispatch(cancelBooking(bookingId)).unwrap();
+
+      toast.success("Booking cancelled successfully!", {
+        position: "top-right",
+        duration: 1000,
+      });
+    } catch (error) {
+      toast.error("Failed to cancel booking");
     }
   };
 
@@ -87,8 +74,6 @@ export default function Profile() {
         return <Clock className="h-5 w-5" />;
       case "Completed":
         return <Package className="h-5 w-5" />;
-      case "Cancelled":
-        return <XCircle className="h-5 w-5" />;
       default:
         return <Shield className="h-5 w-5" />;
     }
@@ -103,14 +88,6 @@ export default function Profile() {
     });
   };
 
-  // Filter bookings based on active tab
-  const filteredBookings =
-    activeTab === "active"
-      ? UserBookings.filter(
-          (b) => b.status === "Approved" || b.status === "Pending",
-        )
-      : UserBookings;
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/30 py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
@@ -119,7 +96,7 @@ export default function Profile() {
           <div className="flex items-center justify-between mb-6">
             <div>
               <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-3">
-                Welcome back,{" "}
+                Welcome back,
                 <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                   {user?.name?.split(" ")[0]}
                 </span>
@@ -187,7 +164,7 @@ export default function Profile() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* LEFT USER CARD */}
+          {/* LEFT USER CARD - Enhanced */}
           <div className="lg:col-span-1">
             <div className="bg-gradient-to-b from-white to-blue-50/50 rounded-3xl shadow-2xl p-8 border border-blue-100/50 relative overflow-hidden">
               {/* Background Pattern */}
@@ -286,7 +263,7 @@ export default function Profile() {
             </div>
           </div>
 
-          {/* RIGHT BOOKINGS SECTION */}
+          {/* RIGHT BOOKINGS SECTION - Enhanced */}
           <div className="lg:col-span-2">
             <div className="bg-gradient-to-b from-white to-blue-50/30 rounded-3xl shadow-2xl p-8 border border-blue-100/50">
               {/* Section Header with Tabs */}
@@ -325,9 +302,9 @@ export default function Profile() {
               </div>
 
               {/* Bookings List */}
-              {filteredBookings?.length > 0 ? (
+              {UserBookings?.length > 0 ? (
                 <div className="space-y-6">
-                  {filteredBookings?.map((booking) => (
+                  {UserBookings?.map((booking) => (
                     <div
                       key={booking._id}
                       className="group bg-gradient-to-r from-white to-blue-50/50 rounded-2xl p-6 border border-gray-200 hover:border-blue-300 hover:shadow-2xl transition-all duration-500 hover:-translate-y-1 relative overflow-hidden"
@@ -468,24 +445,9 @@ export default function Profile() {
                             {booking.status === "Pending" && (
                               <button
                                 onClick={() => handleCancelBooking(booking._id)}
-                                disabled={cancellingId === booking._id}
-                                className={`px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-red-500 to-rose-500 rounded-lg hover:shadow-lg transition-all duration-300 flex items-center gap-2 ${
-                                  cancellingId === booking._id
-                                    ? "opacity-50 cursor-not-allowed"
-                                    : ""
-                                }`}
+                                className="px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-red-500 to-rose-500 rounded-lg hover:shadow-lg transition-all duration-300"
                               >
-                                {cancellingId === booking._id ? (
-                                  <>
-                                    <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div>
-                                    Cancelling...
-                                  </>
-                                ) : (
-                                  <>
-                                    <XCircle className="h-4 w-4" />
-                                    Cancel Booking
-                                  </>
-                                )}
+                                Cancel Booking
                               </button>
                             )}
                           </div>
@@ -495,7 +457,7 @@ export default function Profile() {
                   ))}
                 </div>
               ) : (
-                /* Empty State */
+                /* Empty State - Enhanced */
                 <div className="text-center py-16 px-4">
                   <div className="relative inline-block mb-6">
                     <div className="absolute inset-0 bg-gradient-to-r from-blue-400/20 to-purple-400/20 rounded-full blur-xl"></div>

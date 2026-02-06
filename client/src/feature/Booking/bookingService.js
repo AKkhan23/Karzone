@@ -23,5 +23,17 @@ const getUserBookings = async (token) => {
   return res.data;
 };
 
-const bookingService = { addbooking, getUserBookings };
+const cancelBooking = async (bookingId, token) => {
+  const res = await axios.patch(
+    `${API_BASE}/${bookingId}/cancel`,
+    {},
+    {
+      headers: { Authorization: `Bearer ${token}` },
+    }
+  );
+  // backend returns: { success: true, message: 'Booking cancelled successfully', booking: { ... } }
+  return res.data;
+};
+
+const bookingService = { addbooking, getUserBookings,cancelBooking };
 export default bookingService;

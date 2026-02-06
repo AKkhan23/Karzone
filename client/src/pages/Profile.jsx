@@ -1,15 +1,41 @@
-import { User, Mail, Phone, Calendar, DollarSign, IndianRupee, IndianRupeeIcon, Shield, CreditCard, MapPin, Car, Clock, CheckCircle, Package } from 'lucide-react';
-import { useSelector, useDispatch } from 'react-redux';
-import { useEffect, useState } from 'react';
-import { fetchUserBookings } from "../feature/Booking/bookingSlice";
+import {
+  User,
+  Mail,
+  Phone,
+  Calendar,
+  DollarSign,
+  IndianRupee,
+  IndianRupeeIcon,
+  Shield,
+  CreditCard,
+  MapPin,
+  Car,
+  Clock,
+  CheckCircle,
+  Package,
+  XCircle,
+} from "lucide-react";
+import { useSelector, useDispatch } from "react-redux";
+import { useEffect, useState } from "react";
+import {
+  fetchUserBookings,
+  cancelBooking,
+  resetBookingState,
+} from "../feature/Booking/bookingSlice";
+import { toast } from "react-hot-toast"; // or your preferred toast library
 
 export default function Profile() {
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
-  const [activeTab, setActiveTab] = useState('bookings');
-  
-  const bookings = useSelector((state) => state.booking.bookings) || [];
-  const UserBookings = bookings.filter(booking => booking.user?._id === user?.id);
+  const [activeTab, setActiveTab] = useState("bookings");
+  const [cancellingId, setCancellingId] = useState(null);
+
+  const { bookings, isSuccess, isError, message } = useSelector(
+    (state) => state.booking,
+  );
+  const UserBookings = bookings.filter(
+    (booking) => booking.user?._id === user?.id,
+  );
 
   useEffect(() => {
     if (user?.token) {
@@ -17,29 +43,52 @@ export default function Profile() {
     }
   }, [user, dispatch]);
 
+  // Handle cancel booking success/error
+  useEffect(() => {
+    if (isSuccess && message && cancellingId) {
+      toast.success(message);
+      setCancellingId(null);
+      dispatch(resetBookingState());
+    }
+    if (isError && message && cancellingId) {
+      toast.error(message);
+      setCancellingId(null);
+      dispatch(resetBookingState());
+    }
+  }, [isSuccess, isError, message, cancellingId, dispatch]);
+
+  const handleCancelBooking = async (bookingId) => {
+    if (window.confirm("Are you sure you want to cancel this booking?")) {
+      setCancellingId(bookingId);
+      await dispatch(cancelBooking(bookingId));
+    }
+  };
+
   const getStatusColor = (status) => {
     switch (status) {
-      case 'Approved':
-        return 'bg-gradient-to-r from-emerald-500 to-green-500';
-      case 'Pending':
-        return 'bg-gradient-to-r from-amber-500 to-yellow-500';
-      case 'Completed':
-        return 'bg-gradient-to-r from-blue-500 to-cyan-500';
-      case 'Cancelled':
-        return 'bg-gradient-to-r from-red-500 to-rose-500';
+      case "Approved":
+        return "bg-gradient-to-r from-emerald-500 to-green-500";
+      case "Pending":
+        return "bg-gradient-to-r from-amber-500 to-yellow-500";
+      case "Completed":
+        return "bg-gradient-to-r from-blue-500 to-cyan-500";
+      case "Cancelled":
+        return "bg-gradient-to-r from-red-500 to-rose-500";
       default:
-        return 'bg-gradient-to-r from-gray-500 to-slate-500';
+        return "bg-gradient-to-r from-gray-500 to-slate-500";
     }
   };
 
   const getStatusIcon = (status) => {
     switch (status) {
-      case 'Approved':
+      case "Approved":
         return <CheckCircle className="h-5 w-5" />;
-      case 'Pending':
+      case "Pending":
         return <Clock className="h-5 w-5" />;
-      case 'Completed':
+      case "Completed":
         return <Package className="h-5 w-5" />;
+      case "Cancelled":
+        return <XCircle className="h-5 w-5" />;
       default:
         return <Shield className="h-5 w-5" />;
     }
@@ -48,11 +97,19 @@ export default function Profile() {
   const formatDate = (dateString) => {
     if (!dateString) return "N/A";
     return new Date(dateString).toLocaleDateString("en-GB", {
-      day: 'numeric',
-      month: 'short',
-      year: 'numeric'
+      day: "numeric",
+      month: "short",
+      year: "numeric",
     });
   };
+
+  // Filter bookings based on active tab
+  const filteredBookings =
+    activeTab === "active"
+      ? UserBookings.filter(
+          (b) => b.status === "Approved" || b.status === "Pending",
+        )
+      : UserBookings;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/30 py-8 px-4 sm:px-6 lg:px-8">
@@ -62,17 +119,24 @@ export default function Profile() {
           <div className="flex items-center justify-between mb-6">
             <div>
               <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-3">
-                Welcome back, <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">{user?.name?.split(' ')[0]}</span>
+                Welcome back,{" "}
+                <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                  {user?.name?.split(" ")[0]}
+                </span>
               </h1>
-              <p className="text-gray-600 text-lg">Manage your bookings and profile information</p>
+              <p className="text-gray-600 text-lg">
+                Manage your bookings and profile information
+              </p>
             </div>
-            
+
             <div className="hidden lg:flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-50 to-blue-100 rounded-full">
               <Shield className="h-5 w-5 text-blue-600" />
-              <span className="font-semibold text-blue-700">Member since 2024</span>
+              <span className="font-semibold text-blue-700">
+                Member since 2024
+              </span>
             </div>
           </div>
-          
+
           {/* Stats Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             <div className="bg-gradient-to-br from-white to-blue-50 rounded-2xl p-6 shadow-lg border border-blue-100 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
@@ -85,11 +149,11 @@ export default function Profile() {
                 </span>
               </div>
               <h3 className="text-3xl font-bold text-gray-900 mb-2">
-                {UserBookings.filter(b => b.status === 'Approved').length}
+                {UserBookings.filter((b) => b.status === "Approved").length}
               </h3>
               <p className="text-gray-600">Active Bookings</p>
             </div>
-            
+
             <div className="bg-gradient-to-br from-white to-emerald-50 rounded-2xl p-6 shadow-lg border border-emerald-100 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
               <div className="flex items-center justify-between mb-4">
                 <div className="p-3 bg-emerald-100 rounded-xl">
@@ -100,11 +164,11 @@ export default function Profile() {
                 </span>
               </div>
               <h3 className="text-3xl font-bold text-gray-900 mb-2">
-                {UserBookings.filter(b => b.status === 'Completed').length}
+                {UserBookings.filter((b) => b.status === "Completed").length}
               </h3>
               <p className="text-gray-600">Completed Trips</p>
             </div>
-            
+
             <div className="bg-gradient-to-br from-white to-purple-50 rounded-2xl p-6 shadow-lg border border-purple-100 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
               <div className="flex items-center justify-between mb-4">
                 <div className="p-3 bg-purple-100 rounded-xl">
@@ -123,12 +187,12 @@ export default function Profile() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* LEFT USER CARD - Enhanced */}
+          {/* LEFT USER CARD */}
           <div className="lg:col-span-1">
             <div className="bg-gradient-to-b from-white to-blue-50/50 rounded-3xl shadow-2xl p-8 border border-blue-100/50 relative overflow-hidden">
               {/* Background Pattern */}
               <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-blue-400/10 to-purple-400/5 rounded-full -translate-y-20 translate-x-20"></div>
-              
+
               <div className="relative">
                 {/* Avatar Section */}
                 <div className="flex flex-col items-center mb-8">
@@ -142,10 +206,16 @@ export default function Profile() {
                     </div>
                   </div>
 
-                  <h2 className="text-2xl font-bold text-gray-900 mb-2 text-center">{user?.name}</h2>
+                  <h2 className="text-2xl font-bold text-gray-900 mb-2 text-center">
+                    {user?.name}
+                  </h2>
                   <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-50 to-blue-100 rounded-full mb-6">
-                    <div className={`h-2 w-2 rounded-full ${user?.isAdmin ? 'bg-purple-500' : 'bg-blue-500'}`}></div>
-                    <span className="font-semibold text-blue-700">{user?.isAdmin ? 'Administrator' : 'Premium Member'}</span>
+                    <div
+                      className={`h-2 w-2 rounded-full ${user?.isAdmin ? "bg-purple-500" : "bg-blue-500"}`}
+                    ></div>
+                    <span className="font-semibold text-blue-700">
+                      {user?.isAdmin ? "Administrator" : "Premium Member"}
+                    </span>
                   </div>
                 </div>
 
@@ -157,8 +227,12 @@ export default function Profile() {
                         <Mail className="h-5 w-5 text-blue-600" />
                       </div>
                       <div>
-                        <p className="text-xs text-gray-500 font-medium">Email Address</p>
-                        <p className="text-sm font-semibold text-gray-900 truncate">{user?.email}</p>
+                        <p className="text-xs text-gray-500 font-medium">
+                          Email Address
+                        </p>
+                        <p className="text-sm font-semibold text-gray-900 truncate">
+                          {user?.email}
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -169,8 +243,12 @@ export default function Profile() {
                         <Phone className="h-5 w-5 text-emerald-600" />
                       </div>
                       <div>
-                        <p className="text-xs text-gray-500 font-medium">Phone Number</p>
-                        <p className="text-sm font-semibold text-gray-900">{user?.phone || "Not provided"}</p>
+                        <p className="text-xs text-gray-500 font-medium">
+                          Phone Number
+                        </p>
+                        <p className="text-sm font-semibold text-gray-900">
+                          {user?.phone || "Not provided"}
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -181,8 +259,12 @@ export default function Profile() {
                         <MapPin className="h-5 w-5 text-amber-600" />
                       </div>
                       <div>
-                        <p className="text-xs text-gray-500 font-medium">Account Type</p>
-                        <p className="text-sm font-semibold text-gray-900">{user?.isAdmin ? 'Admin Account' : 'Regular Account'}</p>
+                        <p className="text-xs text-gray-500 font-medium">
+                          Account Type
+                        </p>
+                        <p className="text-sm font-semibold text-gray-900">
+                          {user?.isAdmin ? "Admin Account" : "Regular Account"}
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -196,39 +278,45 @@ export default function Profile() {
                       GOLD
                     </div>
                   </div>
-                  <p className="text-sm text-gray-300">Unlock exclusive benefits and priority support</p>
+                  <p className="text-sm text-gray-300">
+                    Unlock exclusive benefits and priority support
+                  </p>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* RIGHT BOOKINGS SECTION - Enhanced */}
+          {/* RIGHT BOOKINGS SECTION */}
           <div className="lg:col-span-2">
             <div className="bg-gradient-to-b from-white to-blue-50/30 rounded-3xl shadow-2xl p-8 border border-blue-100/50">
               {/* Section Header with Tabs */}
               <div className="flex flex-col md:flex-row md:items-center justify-between mb-8">
                 <div>
-                  <h2 className="text-3xl font-bold text-gray-900 mb-2">Booking History</h2>
-                  <p className="text-gray-600">Track and manage all your car rentals</p>
+                  <h2 className="text-3xl font-bold text-gray-900 mb-2">
+                    Booking History
+                  </h2>
+                  <p className="text-gray-600">
+                    Track and manage all your car rentals
+                  </p>
                 </div>
-                
+
                 <div className="flex items-center gap-2 mt-4 md:mt-0 bg-gray-100 p-1 rounded-full">
-                  <button 
-                    onClick={() => setActiveTab('bookings')}
+                  <button
+                    onClick={() => setActiveTab("bookings")}
                     className={`px-6 py-2 rounded-full font-medium transition-all duration-300 ${
-                      activeTab === 'bookings' 
-                        ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg' 
-                        : 'text-gray-600 hover:text-gray-900'
+                      activeTab === "bookings"
+                        ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg"
+                        : "text-gray-600 hover:text-gray-900"
                     }`}
                   >
                     All Bookings
                   </button>
-                  <button 
-                    onClick={() => setActiveTab('active')}
+                  <button
+                    onClick={() => setActiveTab("active")}
                     className={`px-6 py-2 rounded-full font-medium transition-all duration-300 ${
-                      activeTab === 'active' 
-                        ? 'bg-gradient-to-r from-emerald-600 to-green-600 text-white shadow-lg' 
-                        : 'text-gray-600 hover:text-gray-900'
+                      activeTab === "active"
+                        ? "bg-gradient-to-r from-emerald-600 to-green-600 text-white shadow-lg"
+                        : "text-gray-600 hover:text-gray-900"
                     }`}
                   >
                     Active
@@ -237,16 +325,16 @@ export default function Profile() {
               </div>
 
               {/* Bookings List */}
-              {UserBookings?.length > 0 ? (
+              {filteredBookings?.length > 0 ? (
                 <div className="space-y-6">
-                  {UserBookings?.map((booking) => (
-                    <div 
-                      key={booking._id} 
+                  {filteredBookings?.map((booking) => (
+                    <div
+                      key={booking._id}
                       className="group bg-gradient-to-r from-white to-blue-50/50 rounded-2xl p-6 border border-gray-200 hover:border-blue-300 hover:shadow-2xl transition-all duration-500 hover:-translate-y-1 relative overflow-hidden"
                     >
                       {/* Background Hover Effect */}
                       <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                      
+
                       <div className="relative">
                         {/* Booking Header */}
                         <div className="flex flex-col md:flex-row md:items-center justify-between mb-6">
@@ -258,12 +346,19 @@ export default function Profile() {
                               <h3 className="text-xl font-bold text-gray-900">
                                 {booking.car?.name || "Premium Car"}
                               </h3>
-                              <p className="text-sm text-gray-500">Booking ID: <span className="font-mono">#{booking._id?.slice(-8)}</span></p>
+                              <p className="text-sm text-gray-500">
+                                Booking ID:{" "}
+                                <span className="font-mono">
+                                  #{booking._id?.slice(-8)}
+                                </span>
+                              </p>
                             </div>
                           </div>
 
                           <div className="flex items-center gap-3">
-                            <div className={`flex items-center gap-2 px-4 py-2 rounded-full text-white font-semibold ${getStatusColor(booking.status)}`}>
+                            <div
+                              className={`flex items-center gap-2 px-4 py-2 rounded-full text-white font-semibold ${getStatusColor(booking.status)}`}
+                            >
                               {getStatusIcon(booking.status)}
                               <span>{booking.status}</span>
                             </div>
@@ -276,14 +371,18 @@ export default function Profile() {
                           <div className="space-y-2">
                             <div className="flex items-center gap-2 text-gray-500">
                               <Calendar className="h-4 w-4" />
-                              <span className="text-xs font-medium">START DATE</span>
+                              <span className="text-xs font-medium">
+                                START DATE
+                              </span>
                             </div>
                             <div className="flex items-center gap-2">
                               <div className="p-2 bg-gradient-to-br from-blue-100 to-blue-50 rounded-lg">
                                 <Calendar className="h-5 w-5 text-blue-600" />
                               </div>
                               <div>
-                                <p className="text-lg font-bold text-gray-900">{formatDate(booking.startDate)}</p>
+                                <p className="text-lg font-bold text-gray-900">
+                                  {formatDate(booking.startDate)}
+                                </p>
                                 <p className="text-xs text-gray-500">Pickup</p>
                               </div>
                             </div>
@@ -292,14 +391,18 @@ export default function Profile() {
                           <div className="space-y-2">
                             <div className="flex items-center gap-2 text-gray-500">
                               <Calendar className="h-4 w-4" />
-                              <span className="text-xs font-medium">END DATE</span>
+                              <span className="text-xs font-medium">
+                                END DATE
+                              </span>
                             </div>
                             <div className="flex items-center gap-2">
                               <div className="p-2 bg-gradient-to-br from-emerald-100 to-emerald-50 rounded-lg">
                                 <Calendar className="h-5 w-5 text-emerald-600" />
                               </div>
                               <div>
-                                <p className="text-lg font-bold text-gray-900">{formatDate(booking.endDate)}</p>
+                                <p className="text-lg font-bold text-gray-900">
+                                  {formatDate(booking.endDate)}
+                                </p>
                                 <p className="text-xs text-gray-500">Return</p>
                               </div>
                             </div>
@@ -308,15 +411,21 @@ export default function Profile() {
                           <div className="space-y-2">
                             <div className="flex items-center gap-2 text-gray-500">
                               <Clock className="h-4 w-4" />
-                              <span className="text-xs font-medium">DURATION</span>
+                              <span className="text-xs font-medium">
+                                DURATION
+                              </span>
                             </div>
                             <div className="flex items-center gap-2">
                               <div className="p-2 bg-gradient-to-br from-purple-100 to-purple-50 rounded-lg">
                                 <Clock className="h-5 w-5 text-purple-600" />
                               </div>
                               <div>
-                                <p className="text-lg font-bold text-gray-900">{booking.totalDays} days</p>
-                                <p className="text-xs text-gray-500">Total Rental</p>
+                                <p className="text-lg font-bold text-gray-900">
+                                  {booking.totalDays} days
+                                </p>
+                                <p className="text-xs text-gray-500">
+                                  Total Rental
+                                </p>
                               </div>
                             </div>
                           </div>
@@ -324,15 +433,21 @@ export default function Profile() {
                           <div className="space-y-2">
                             <div className="flex items-center gap-2 text-gray-500">
                               <IndianRupeeIcon className="h-4 w-4" />
-                              <span className="text-xs font-medium">TOTAL PRICE</span>
+                              <span className="text-xs font-medium">
+                                TOTAL PRICE
+                              </span>
                             </div>
                             <div className="flex items-center gap-2">
                               <div className="p-2 bg-gradient-to-br from-amber-100 to-amber-50 rounded-lg">
                                 <IndianRupeeIcon className="h-5 w-5 text-amber-600" />
                               </div>
                               <div>
-                                <p className="text-lg font-bold text-gray-900">₹{booking.totalPrice}</p>
-                                <p className="text-xs text-gray-500">All inclusive</p>
+                                <p className="text-lg font-bold text-gray-900">
+                                  ₹{booking.totalPrice}
+                                </p>
+                                <p className="text-xs text-gray-500">
+                                  All inclusive
+                                </p>
                               </div>
                             </div>
                           </div>
@@ -350,9 +465,27 @@ export default function Profile() {
                             <button className="px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors duration-300">
                               View Details
                             </button>
-                            {booking.status === 'Pending' && (
-                              <button className="px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-red-500 to-rose-500 rounded-lg hover:shadow-lg transition-all duration-300">
-                                Cancel Booking
+                            {booking.status === "Pending" && (
+                              <button
+                                onClick={() => handleCancelBooking(booking._id)}
+                                disabled={cancellingId === booking._id}
+                                className={`px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-red-500 to-rose-500 rounded-lg hover:shadow-lg transition-all duration-300 flex items-center gap-2 ${
+                                  cancellingId === booking._id
+                                    ? "opacity-50 cursor-not-allowed"
+                                    : ""
+                                }`}
+                              >
+                                {cancellingId === booking._id ? (
+                                  <>
+                                    <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div>
+                                    Cancelling...
+                                  </>
+                                ) : (
+                                  <>
+                                    <XCircle className="h-4 w-4" />
+                                    Cancel Booking
+                                  </>
+                                )}
                               </button>
                             )}
                           </div>
@@ -362,7 +495,7 @@ export default function Profile() {
                   ))}
                 </div>
               ) : (
-                /* Empty State - Enhanced */
+                /* Empty State */
                 <div className="text-center py-16 px-4">
                   <div className="relative inline-block mb-6">
                     <div className="absolute inset-0 bg-gradient-to-r from-blue-400/20 to-purple-400/20 rounded-full blur-xl"></div>
@@ -370,12 +503,15 @@ export default function Profile() {
                       <Car className="h-20 w-20 text-gray-300 mx-auto mb-4" />
                     </div>
                   </div>
-                  <h3 className="text-2xl font-bold text-gray-900 mb-3">No bookings yet</h3>
+                  <h3 className="text-2xl font-bold text-gray-900 mb-3">
+                    No bookings yet
+                  </h3>
                   <p className="text-gray-600 mb-8 max-w-md mx-auto">
-                    Start your journey by booking your first car. Explore our premium collection of vehicles.
+                    Start your journey by booking your first car. Explore our
+                    premium collection of vehicles.
                   </p>
-                  <a 
-                    href="/cars" 
+                  <a
+                    href="/cars"
                     className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl font-bold hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300"
                   >
                     <Car className="h-5 w-5" />

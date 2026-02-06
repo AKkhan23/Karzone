@@ -475,7 +475,7 @@ export default function Profile() {
                                     : ""
                                 }`}
                               >
-                                {cancellingId === booking._id ? (
+                                {cancellingId == booking._id ? (
                                   <>
                                     <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div>
                                     Cancelling...

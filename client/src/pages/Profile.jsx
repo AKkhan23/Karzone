@@ -28,9 +28,9 @@ export default function Profile() {
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
   const [activeTab, setActiveTab] = useState("bookings");
-  const [cancellingId, setCancellingId] = useState(null);
+  // const [cancellingId, setCancellingId] = useState(null);
 
-  const { bookings, isLoading, isSuccess, isError, message } = useSelector(
+  const { bookings, isSuccess, isError, message } = useSelector(
     (state) => state.booking,
   );
   const UserBookings = bookings.filter(
@@ -44,40 +44,47 @@ export default function Profile() {
   }, [user, dispatch]);
 
   // Handle cancel booking success/error
-  useEffect(() => {
-    if (isSuccess && message && cancellingId) {
-      toast.success(message);
+  // useEffect(() => {
+  //   if (isSuccess && message && cancellingId) {
+  //     toast.success(message);
 
-      setCancellingId(null);
+  //     setCancellingId(null);
 
-      // 🔥 booking list fresh karo
-      dispatch(fetchUserBookings());
+  //     // 🔥 booking list fresh karo
+  //     dispatch(fetchUserBookings());
 
-      dispatch(resetBookingState());
-    }
+  //     dispatch(resetBookingState());
+  //   }
 
-    if (isError && message && cancellingId) {
-      toast.error(message);
-      setCancellingId(null);
-      dispatch(resetBookingState());
-    }
-  }, [isSuccess, isError, message, cancellingId, dispatch]);
+  //   if (isError && message && cancellingId) {
+  //     toast.error(message);
+  //     setCancellingId(null);
+  //     dispatch(resetBookingState());
+  //   }
+  // }, [isSuccess, isError, message, cancellingId, dispatch]);
 
-  const handleCancelBooking = async (bookingId) => {
+  // const handleCancelBooking = async (bookingId) => {
+  //   if (!window.confirm("Are you sure you want to cancel this booking?"))
+  //     return;
+
+  //   setCancellingId(bookingId);
+
+  //   try {
+  //     await dispatch(cancelBooking(bookingId)).unwrap();
+  //     toast.success("Booking cancelled successfully");
+  //   } catch (error) {
+  //     toast.error(error || "Cancel failed");
+  //   } finally {
+  //     // 🔥 loader kabhi stuck nahi hoga
+  //     setCancellingId(null);
+  //   }
+  // };
+
+  const handleCancelBooking = (bookingId) => {
     if (!window.confirm("Are you sure you want to cancel this booking?"))
       return;
 
-    setCancellingId(bookingId);
-
-    try {
-      await dispatch(cancelBooking(bookingId)).unwrap();
-      toast.success("Booking cancelled successfully");
-    } catch (error) {
-      toast.error(error || "Cancel failed");
-    } finally {
-      // 🔥 loader kabhi stuck nahi hoga
-      setCancellingId(null);
-    }
+    dispatch(cancelBooking(bookingId));
   };
 
   const getStatusColor = (status) => {
@@ -481,7 +488,11 @@ export default function Profile() {
                             <button className="px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors duration-300">
                               View Details
                             </button>
-                            {booking.status === "Pending" &&
+
+                            <button onClick={()=> handleCancelBooking(booking._id)} className="bg-amber-300 px-4 py-2 text-sm font-medium text-amber-900 rounded-lg hover:bg-amber-400 transition-colors duration-300">
+                              Cancel Booking
+                            </button>
+                            {/* {booking.status === "Pending" &&
                               !cancellingId(
                                 <button
                                   onClick={() =>
@@ -503,7 +514,7 @@ export default function Profile() {
                                     "Cancel Booking"
                                   )}
                                 </button>,
-                              )}
+                              )} */}
                           </div>
                         </div>
                       </div>

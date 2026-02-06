@@ -471,7 +471,7 @@ export default function Profile() {
                             <button className="px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors duration-300">
                               View Details
                             </button>
-                            {booking.status === "Pending" && (
+                            {booking.status === "Pending" && !cancellingId (
                               <button
                                 onClick={() => handleCancelBooking(booking._id)}
                                 disabled={cancellingId === booking._id}

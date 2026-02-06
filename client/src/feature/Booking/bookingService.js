@@ -1,4 +1,4 @@
- import axios from "axios";
+import axios from "axios";
 
 const API_BASE = "https://karzone-z9pw.onrender.com/api/booking";
 
@@ -13,27 +13,24 @@ const addbooking = async (formData, token) => {
 
 // Fetch bookings of logged-in user
 const getUserBookings = async (token) => {
-  const res = await axios.get(API_BASE , {
+  const res = await axios.get(API_BASE, {
     headers: { Authorization: `Bearer ${token}` },
   });
   // console.log(res.data);
-  
+
   // backend returns something like: { bookings: [ ... ] }
   // return bookings array directly so thunks receive array
   return res.data;
 };
 
 const cancelBooking = async (bookingId, token) => {
-  const res = await axios.put(
-    `${API_BASE}/${bookingId}`,
-    {},
-    {
-      headers: { Authorization: `Bearer ${token}` },
-    }
-  );
+  
+  const res = await axios.put(`${API_BASE}/${bookingId}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
   // backend returns: { success: true, message: 'Booking cancelled successfully', booking: { ... } }
   return res.data;
 };
 
-const bookingService = { addbooking, getUserBookings,cancelBooking };
+const bookingService = { addbooking, getUserBookings, cancelBooking };
 export default bookingService;

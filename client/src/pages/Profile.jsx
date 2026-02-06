@@ -56,6 +56,10 @@ export default function Profile() {
       dispatch(resetBookingState());
     }
 
+    if(isLoading){
+      
+    }
+
     if (isError && message && cancellingId) {
       toast.error(message);
       setCancellingId(null);

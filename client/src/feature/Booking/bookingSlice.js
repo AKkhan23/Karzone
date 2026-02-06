@@ -136,30 +136,24 @@ const bookingSlice = createSlice({
       .addCase(cancelBooking.pending, (state) => {
         state.isLoading = true;
       })
+
       .addCase(cancelBooking.fulfilled, (state, action) => {
         state.isLoading = false;
         state.isSuccess = true;
-        state.isSucsess = true;
-        state.isError = false;
+        state.message = action.payload.message;
 
-        // action.payload is { success, message, booking }
-        // Update the booking in the bookings array
-        const updatedBooking = action.payload.booking;
-        const index = state.bookings.findIndex(
-          (b) => b._id === updatedBooking._id,
+        // 🔥 local state update (instant UI)
+        state.bookings = state.bookings.map((b) =>
+          b._id === action.payload.bookingId
+            ? { ...b, status: "Cancelled" }
+            : b,
         );
-        if (index !== -1) {
-          state.bookings[index] = updatedBooking;
-        }
-        state.message =
-          action.payload.message || "Booking cancelled successfully";
       })
+
       .addCase(cancelBooking.rejected, (state, action) => {
         state.isLoading = false;
-        state.isSuccess = false;
-        state.isSucsess = false;
         state.isError = true;
-        state.message = action.payload || "Failed to cancel booking";
+        state.message = action.payload;
       });
   },
 });

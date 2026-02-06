@@ -63,10 +63,20 @@ export default function Profile() {
     }
   }, [isSuccess, isError, message, cancellingId, dispatch]);
 
-  const handleCancelBooking = (bookingId) => {
-    if (window.confirm("Are you sure you want to cancel this booking?")) {
-      setCancellingId(bookingId);
-      dispatch(cancelBooking(bookingId));
+  const handleCancelBooking = async (bookingId) => {
+    if (!window.confirm("Are you sure you want to cancel this booking?"))
+      return;
+
+    setCancellingId(bookingId);
+
+    try {
+      await dispatch(cancelBooking(bookingId)).unwrap();
+      toast.success("Booking cancelled successfully");
+    } catch (error) {
+      toast.error(error || "Cancel failed");
+    } finally {
+      // 🔥 loader kabhi stuck nahi hoga
+      setCancellingId(null);
     }
   };
 
@@ -471,29 +481,29 @@ export default function Profile() {
                             <button className="px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors duration-300">
                               View Details
                             </button>
-                            {booking.status === "Pending" && !cancellingId (
-                              <button
-                                onClick={() => handleCancelBooking(booking._id)}
-                                disabled={cancellingId === booking._id}
-                                className={`px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-red-500 to-rose-500 rounded-lg hover:shadow-lg transition-all duration-300 flex items-center gap-2 ${
-                                  cancellingId === booking._id
-                                    ? "opacity-50 cursor-not-allowed"
-                                    : ""
-                                }`}
-                              >
-                                {cancellingId == booking._id ? (
-                                  <>
-                                    <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div>
-                                    Cancelling...
-                                  </>
-                                ) : (
-                                  <>
-                                    <XCircle className="h-4 w-4" />
-                                    Cancel Booking
-                                  </>
-                                )}
-                              </button>
-                            )}
+                            {booking.status === "Pending" &&
+                              !cancellingId(
+                                <button
+                                  onClick={() =>
+                                    handleCancelBooking(booking._id)
+                                  }
+                                  disabled={cancellingId === booking._id}
+                                  className={`px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-red-500 to-rose-500 rounded-lg flex items-center gap-2 ${
+                                    cancellingId === booking._id
+                                      ? "opacity-50 cursor-not-allowed"
+                                      : ""
+                                  }`}
+                                >
+                                  {cancellingId === booking._id ? (
+                                    <>
+                                      <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div>
+                                      Cancelling...
+                                    </>
+                                  ) : (
+                                    "Cancel Booking"
+                                  )}
+                                </button>,
+                              )}
                           </div>
                         </div>
                       </div>

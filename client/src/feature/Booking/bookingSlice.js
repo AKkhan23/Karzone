@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import bookingService from "./bookingService";
 
-// ADD BOOKING
+// Thunks
 export const AddBooking = createAsyncThunk(
   "booking/AddBooking",
   async (formdata, thunkAPI) => {
@@ -11,78 +11,52 @@ export const AddBooking = createAsyncThunk(
         carId: formdata.id,
         ...formdata.form,
       };
+      // returns { message, booking }
       return await bookingService.addbooking(payload, token);
     } catch (error) {
-      return thunkAPI.rejectWithValue(
-        error.response?.data?.message || "Booking failed!",
-      );
+      const message = error.response?.data?.message || "Booking failed!";
+      return thunkAPI.rejectWithValue(message);
     }
-  },
+  }
 );
 
-// FETCH BOOKINGS
 export const fetchUserBookings = createAsyncThunk(
   "booking/fetchUserBookings",
   async (_, thunkAPI) => {
     try {
       const token = thunkAPI.getState().auth.user?.token;
+      // returns array of bookings
       return await bookingService.getUserBookings(token);
     } catch (error) {
-      return thunkAPI.rejectWithValue(
-        error.response?.data?.message || "Error fetching bookings",
-      );
+      const message =
+        error.response?.data?.message || "Error fetching your bookings";
+      return thunkAPI.rejectWithValue(message);
     }
-  },
+  }
 );
 
 export const cancelBooking = createAsyncThunk(
   "booking/cancelBooking",
   async (bookingId, thunkAPI) => {
     try {
-
-      console.log(bookingId)
       const token = thunkAPI.getState().auth.user?.token;
+      // returns { success, message, booking }
       return await bookingService.cancelBooking(bookingId, token);
     } catch (error) {
-      return thunkAPI.rejectWithValue(
-        error.response?.data?.message || "Error cancelling booking",
-      );
+      const message =
+        error.response?.data?.message || "Failed to cancel booking";
+      return thunkAPI.rejectWithValue(message);
     }
-  },
+  }
 );
 
-// CANCEL BOOKING ✅
-// export const cancelBooking = createAsyncThunk(
-//   "booking/cancel",
-//   async (bookingId, thunkAPI) => {
-//     try {
-//       await axios.put(
-//         `/api/bookings/cancel/${bookingId}`,
-//         {},
-//         {
-//           headers: {
-//             Authorization: `Bearer ${thunkAPI.getState().auth.user.token}`,
-//           },
-//         }
-//       );
-
-//       return {
-//         bookingId,
-//         message: "Booking cancelled successfully",
-//       };
-//     } catch (error) {
-//       return thunkAPI.rejectWithValue(
-//         error.response?.data?.message || "Cancel failed"
-//       );
-//     }
-//   }
-// );
-
 const initialState = {
-  bookings: [],
+  bookings: [], // array of booking objects
   isLoading: false,
   isError: false,
   isSuccess: false,
+  // some parts of your app used this misspelled flag, keep it for compatibility:
+  isSucsess: false,
   message: null,
 };
 
@@ -94,60 +68,85 @@ const bookingSlice = createSlice({
       state.isLoading = false;
       state.isError = false;
       state.isSuccess = false;
+      state.isSucsess = false;
       state.message = null;
     },
   },
   extraReducers: (builder) => {
     builder
-      // ADD
+      // ADD BOOKING
       .addCase(AddBooking.pending, (state) => {
         state.isLoading = true;
       })
       .addCase(AddBooking.fulfilled, (state, action) => {
         state.isLoading = false;
         state.isSuccess = true;
-        state.bookings.push(action.payload.booking);
-        state.message = action.payload.message;
+        state.isSucsess = true; // keep backward compatibility
+        state.isError = false;
+
+        // action.payload is { message, booking }
+        if (action.payload && action.payload.booking) {
+          state.bookings.push(action.payload.booking);
+          state.message = action.payload.message || null;
+        } else {
+          // fallback: if somehow backend returned the booking directly
+          state.bookings.push(action.payload);
+        }
       })
       .addCase(AddBooking.rejected, (state, action) => {
         state.isLoading = false;
+        state.isSuccess = false;
+        state.isSucsess = false;
         state.isError = true;
-        state.message = action.payload;
+        state.message = action.payload || "Failed to add booking";
       })
 
-      // FETCH
+      // FETCH USER BOOKINGS
       .addCase(fetchUserBookings.pending, (state) => {
         state.isLoading = true;
       })
       .addCase(fetchUserBookings.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.bookings = action.payload;
+        state.isSuccess = true;
+        state.isError = false;
+
+        // action.payload is array of bookings
+        state.bookings = Array.isArray(action.payload) ? action.payload : [];
       })
       .addCase(fetchUserBookings.rejected, (state, action) => {
         state.isLoading = false;
+        state.isSuccess = false;
         state.isError = true;
-        state.message = action.payload;
+        state.message = action.payload || "Failed to fetch bookings";
       })
 
-      // CANCEL ✅
+      // CANCEL BOOKING
       .addCase(cancelBooking.pending, (state) => {
         state.isLoading = true;
       })
       .addCase(cancelBooking.fulfilled, (state, action) => {
         state.isLoading = false;
         state.isSuccess = true;
+        state.isSucsess = true;
         state.isError = false;
 
-        state.bookings = state.bookings.map((b) =>
-          b._id === action.payload.bookingId
-            ? { ...b, status: "Cancelled" }
-            : b,
+        // action.payload is { success, message, booking }
+        // Update the booking in the bookings array
+        const updatedBooking = action.payload.booking;
+        const index = state.bookings.findIndex(
+          (b) => b._id === updatedBooking._id
         );
+        if (index !== -1) {
+          state.bookings[index] = updatedBooking;
+        }
+        state.message = action.payload.message || "Booking cancelled successfully";
       })
       .addCase(cancelBooking.rejected, (state, action) => {
         state.isLoading = false;
+        state.isSuccess = false;
+        state.isSucsess = false;
         state.isError = true;
-        state.message = action.payload;
+        state.message = action.payload || "Failed to cancel booking";
       });
   },
 });

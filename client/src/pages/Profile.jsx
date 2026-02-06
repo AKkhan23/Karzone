@@ -47,9 +47,15 @@ export default function Profile() {
   useEffect(() => {
     if (isSuccess && message && cancellingId) {
       toast.success(message);
+
       setCancellingId(null);
+
+      // 🔥 booking list fresh karo
+      dispatch(fetchUserBookings());
+
       dispatch(resetBookingState());
     }
+
     if (isError && message && cancellingId) {
       toast.error(message);
       setCancellingId(null);
@@ -57,10 +63,10 @@ export default function Profile() {
     }
   }, [isSuccess, isError, message, cancellingId, dispatch]);
 
-  const handleCancelBooking = async (bookingId) => {
+  const handleCancelBooking = (bookingId) => {
     if (window.confirm("Are you sure you want to cancel this booking?")) {
       setCancellingId(bookingId);
-      await dispatch(cancelBooking(bookingId));
+      dispatch(cancelBooking(bookingId));
     }
   };
 

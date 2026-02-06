@@ -37,11 +37,11 @@ export default function Profile() {
     }
   }, [user, dispatch]);
 
-  const handleCancelBooking = (bookingId) => {
-    if (!window.confirm("Are you sure you want to cancel this booking?"))
-      return;
-    dispatch(cancelBooking(bookingId));
-  };
+ const handleCancelBooking = (bookingId) => {
+  dispatch(cancelBooking(bookingId));
+  
+};
+
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -434,14 +434,14 @@ export default function Profile() {
                             <button className="px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors duration-300">
                               View Details
                             </button>
-                            {booking.status === "Pending" && (
+                           
                               <button
                                 onClick={() => handleCancelBooking(booking._id)}
                                 className="px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-red-500 to-rose-500 rounded-lg hover:shadow-lg transition-all duration-300"
                               >
                                 Cancel Booking
                               </button>
-                            )}
+                   
                           </div>
                         </div>
                       </div>

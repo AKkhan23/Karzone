@@ -24,7 +24,7 @@ const getUserBookings = async (token) => {
 };
 
 const cancelBooking = async (bookingId, token) => {
-  const res = await axios.patch(
+  const res = await axios.put(
     `${API_BASE}/${bookingId}`,
     {},
     {

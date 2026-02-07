@@ -1,4 +1,4 @@
- import axios from "axios";
+import axios from "axios";
 
 const API_BASE = "https://karzone-z9pw.onrender.com/api/booking";
 
@@ -43,7 +43,7 @@ const cancelBooking = async (bookingId, token) => {
       headers: {
         Authorization: `Bearer ${token}`,
       },
-    }
+    },
   );
 
   // backend response:

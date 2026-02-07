@@ -208,7 +208,7 @@ export default function Profile() {
             <div className="bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-2xl font-bold text-gray-900">
-                  My Bookings
+                  My Bookingssss
                 </h2>
                 <span className="text-sm text-gray-500">
                   {UserBookings.length} total

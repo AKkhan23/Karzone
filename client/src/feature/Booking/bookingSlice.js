@@ -44,10 +44,12 @@ export const fetchUserBookings = createAsyncThunk(
 // =======================
 export const cancelBooking = createAsyncThunk(
   "booking/cancelBooking",
-  async (id, thunkAPI) => {
+  async (payload, thunkAPI) => {
     try {
       const token = thunkAPI.getState().auth.user?.token;
-      return await bookingService.cancelBooking(id, token);
+      const result = await bookingService.cancelBooking(payload.selectedBookingId, token);
+      payload.handleCloseModal && payload.handleCloseModal();
+      return result;
     } catch (error) {
       return thunkAPI.rejectWithValue(
         error.response?.data?.message || "Failed to cancel booking",

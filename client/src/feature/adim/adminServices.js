@@ -1,9 +1,10 @@
 // src/feature/adim/adminServices.js
 import axios from "axios";
+import { baseURL } from "../../constant";
 
 // USERS
 export const getAllUsers = async (token) => {
-  const res = await axios.get("https://karzone-z9pw.onrender.com/api/admin/get-users", {
+  const res = await axios.get(`${baseURL}/admin/get-users`, {
     headers: { Authorization: `Bearer ${token}` },
   });
   return res.data;
@@ -11,14 +12,14 @@ export const getAllUsers = async (token) => {
 
 // CARS
 export const getAllCars = async (token) => {
-  const res = await axios.get("https://karzone-z9pw.onrender.com/api/car/get-cars", {
+  const res = await axios.get(`${baseURL}/car/get-cars`, {
     headers: { Authorization: `Bearer ${token}` },
   });
   return res.data;
 };
 
 export const getCarDeatails = async (id, token) => {
-  const res = await axios.get(`https://karzone-z9pw.onrender.com/api/car/${id}`, {
+  const res = await axios.get(`${baseURL}/car/${id}`, {
     headers: { Authorization: `Bearer ${token}` },
   });
   return res.data;
@@ -26,7 +27,7 @@ export const getCarDeatails = async (id, token) => {
 
 // ADD CAR
 export const addNewCar = async (formData, token) => {
-  const res = await axios.post("https://karzone-z9pw.onrender.com/api/admin/add-car", formData, {
+  const res = await axios.post(`${baseURL}/admin/add-car`, formData, {
     headers: { Authorization: `Bearer ${token}` },
   });
   return res.data;
@@ -34,7 +35,7 @@ export const addNewCar = async (formData, token) => {
 
 // DELETE CAR
 export const deletCar = async (id, token) => {
-  const res = await axios.delete(`https://karzone-z9pw.onrender.com/api/admin/delete-car/${id}`, {
+  const res = await axios.delete(`${baseURL}/admin/delete-car/${id}`, {
     headers: { Authorization: `Bearer ${token}` },
   });
   return res.data;
@@ -43,7 +44,7 @@ export const deletCar = async (id, token) => {
 // UPDATE CAR
 export const editCar = async (formData, token) => {
   const res = await axios.put(
-    `https://karzone-z9pw.onrender.com/api/admin/update-car/${formData.id}`,
+    `${baseURL}/admin/update-car/${formData.id}`,
     formData.data,
     { headers: { Authorization: `Bearer ${token}` } }
   );
@@ -52,7 +53,7 @@ export const editCar = async (formData, token) => {
 
 // BOOKINGS
 export const fetchAllBookings = async (token) => {
-  const res = await axios.get("https://karzone-z9pw.onrender.com/api/admin/get-bookings", {
+  const res = await axios.get(`${baseURL}/admin/get-bookings`, {
     headers: { Authorization: `Bearer ${token}` },
   });
   return res.data;
@@ -61,7 +62,7 @@ export const fetchAllBookings = async (token) => {
 // UPDATE BOOKING STATUS 
 export const updateBookingStatusService = async (formData, token) => {
   const res = await axios.put(
-    `https://karzone-z9pw.onrender.com/api/admin/update-booking/${formData.id}`,
+    `${baseURL}/admin/update-booking/${formData.id}`,
     formData.data,
     { headers: { Authorization: `Bearer ${token}` } }
   );

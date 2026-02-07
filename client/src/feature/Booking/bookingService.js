@@ -1,6 +1,7 @@
 import axios from "axios";
+import { baseURL } from "../../constant";
 
-const API_BASE = "https://karzone-z9pw.onrender.com/api/booking";
+const API_BASE = `${baseURL}/booking`;
 
 // =====================
 // CREATE BOOKING

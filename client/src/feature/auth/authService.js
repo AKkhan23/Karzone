@@ -2,10 +2,11 @@
 // axios api fetch krne ke use ata hai get post put delet update../
 
 import axios from "axios";
+import { baseURL } from "../../constant";
 
 // REGISTER
 const register = async (formData) => {
-  const response = await axios.post("https://karzone-z9pw.onrender.com/api/auth/register", formData, {
+  const response = await axios.post(`${baseURL}/auth/register`, formData, {
     withCredentials: true, // optional if using cookies
   });
 
@@ -19,7 +20,7 @@ const register = async (formData) => {
 
 // LOGIN
 const login = async (formData) => {
-  const response = await axios.post("https://karzone-z9pw.onrender.com/api/auth/login", formData, {
+  const response = await axios.post(`${baseURL}/auth/login`, formData, {
     withCredentials: true, // optional
   });
 

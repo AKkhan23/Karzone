@@ -37,40 +37,44 @@ export default function Profile() {
   }, [user, dispatch]);
 
   useEffect(() => {
-    if (isSuccess) {
+    if (isSuccess && cancellingId) {
       setCancellingId(null);
       setShowConfirmModal(false);
       setSelectedBookingId(null);
 
-      // Show success message briefly
-      setTimeout(() => {
-        dispatch(resetBookingState());
-      }, 3000);
+      dispatch(resetBookingState()); // ← Reset immediately!
+      dispatch(fetchUserBookings()); // ← Refresh list
     }
+  }, [isSuccess, isError, cancellingId, dispatch]);
 
-    if (isError) {
-      setCancellingId(null);
-      setShowConfirmModal(false);
-      setSelectedBookingId(null);
-    }
-  }, [isSuccess, isError, dispatch]);
+  useEffect(() => {
+    return () => {
+      dispatch(resetBookingState());
+    };
+  }, [dispatch]);
 
   const handleCancelClick = (bookingId) => {
+    dispatch(resetBookingState()); // ← Reset old states first!
     setSelectedBookingId(bookingId);
     setShowConfirmModal(true);
+  };
+
+    const handleCloseModal = () => {
+      dispatch(fetchUserBookings());
+    setShowConfirmModal(false);
+    setSelectedBookingId(null);
+    setCancellingId(null);
+    dispatch(resetBookingState()); // ← Clean up!
   };
 
   const handleConfirmCancel = async () => {
     if (selectedBookingId) {
       setCancellingId(selectedBookingId);
-      await dispatch(cancelBooking(selectedBookingId));
+       await dispatch(cancelBooking({selectedBookingId,handleCloseModal}));
     }
   };
 
-  const handleCloseModal = () => {
-    setShowConfirmModal(false);
-    setSelectedBookingId(null);
-  };
+
 
   const getStatusColor = (status) => {
     switch (status) {

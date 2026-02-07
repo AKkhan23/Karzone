@@ -22,7 +22,7 @@ app.use((req, res, next) => {
 
 app.use(
   cors({
-    origin: "https://karzone.vercel.app",
+    origin: process.env.Frontend_URL,
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
   })

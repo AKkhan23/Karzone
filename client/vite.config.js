@@ -8,14 +8,5 @@ export default defineConfig(({ mode }) => {
 
   return {
     plugins: [react(), tailwindcss()],
-    server: {
-      // proxy: {
-      //   '/api': {
-      //     target: "https://karzone-z9pw.onrender.com",
-      //     changeOrigin: true,
-      //     secure: false,
-      //   },
-      // },
-    },
   }
 })

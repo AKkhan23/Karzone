@@ -37,7 +37,7 @@ export default function Profile() {
   }, [user, dispatch]);
 
   useEffect(() => {
-    if (isSuccess && cancellingId) {
+    if (isSuccess) {
       setCancellingId(null);
       setShowConfirmModal(false);
       setSelectedBookingId(null);
@@ -48,10 +48,12 @@ export default function Profile() {
       }, 3000);
     }
 
-    if (isError && cancellingId) {
+    if (isError) {
       setCancellingId(null);
+      setShowConfirmModal(false);
+      setSelectedBookingId(null);
     }
-  }, [isSuccess, isError, cancellingId, dispatch]);
+  }, [isSuccess, isError, dispatch]);
 
   const handleCancelClick = (bookingId) => {
     setSelectedBookingId(bookingId);
@@ -208,7 +210,7 @@ export default function Profile() {
             <div className="bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-2xl font-bold text-gray-900">
-                  My Bookingsss
+                  My Bookings
                 </h2>
                 <span className="text-sm text-gray-500">
                   {UserBookings.length} total
@@ -333,7 +335,7 @@ export default function Profile() {
         </div>
       </div>
 
-      {/* Confirmation Modal - FIXED */}
+      {/* Confirmation Modal */}
       {showConfirmModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           {/* Background overlay */}

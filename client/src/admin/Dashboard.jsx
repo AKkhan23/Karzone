@@ -2,7 +2,6 @@ import {
   Users,
   Car,
   Calendar,
-  DollarSign,
   TrendingUp,
   Clock,
   CheckCircle,
@@ -21,6 +20,7 @@ import {
   Activity,
   Gem,
   Briefcase,
+  IndianRupeeIcon,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -107,7 +107,7 @@ export default function Dashboard() {
     {
       title: "Total Revenue",
       value: `₹${totalRevenue.toLocaleString()}`,
-      icon: DollarSign,
+      icon: IndianRupeeIcon,
       animatedIcon: TrendingUp2,
       color: "from-amber-500 to-orange-500",
       bgColor: "bg-gradient-to-r from-amber-500/10 to-orange-500/10",
@@ -580,7 +580,7 @@ export default function Dashboard() {
                           animate={{ scale: [1, 1.2, 1] }}
                           transition={{ duration: 2, repeat: Infinity }}
                         >
-                          <DollarSign className="h-4 w-4 text-green-500" />
+                          <IndianRupeeIcon className="h-4 w-4 text-green-500" />
                         </motion.div>
                         <span className="font-semibold text-gray-900">
                           ₹{booking.totalPrice || 0}

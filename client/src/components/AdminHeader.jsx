@@ -21,55 +21,63 @@ export default function AdminHeader() {
 
   // Component load होते ही theme check करें
   useEffect(() => {
-    // LocalStorage से theme लो
-    const savedTheme = localStorage.getItem("dark-mode");
-    console.log("Saved theme from localStorage:", savedTheme);
+    // 1. LocalStorage से theme लो (key: 'theme')
+    const savedTheme = localStorage.getItem("theme");
+    console.log("📱 Saved theme from localStorage:", savedTheme);
 
-    if (savedTheme === "true") {
-      console.log("Setting dark mode ON");
-      setDarkMode(true);
+    // 2. System preference check करो
+    const prefersDark = window.matchMedia(
+      "(prefers-color-scheme: dark)",
+    ).matches;
+    console.log("🌙 System prefers dark?", prefersDark);
+
+    // 3. Priority: localStorage > system preference
+    if (savedTheme === "dark" || (!savedTheme && prefersDark)) {
+      console.log("✅ Setting DARK mode");
       document.documentElement.classList.add("dark");
+      setDarkMode(true);
     } else {
-      console.log("Setting dark mode OFF");
-      setDarkMode(false);
+      console.log("✅ Setting LIGHT mode");
       document.documentElement.classList.remove("dark");
+      setDarkMode(false);
     }
   }, []);
 
-  // Dark mode toggle function - SIMPLE & WORKING
+  // SIMPLE & WORKING DARK MODE TOGGLE
   const toggleDarkMode = () => {
-    console.log("Toggling dark mode. Current:", darkMode);
+    console.log("🔄 Toggling theme...");
 
-    // HTML के <html> tag पर class add/remove करें
+    // सीधे HTML element पर class toggle करो
     const htmlElement = document.documentElement;
 
-    if (htmlElement.classList.contains("dark")) {
-      // Currently dark mode है, light mode करें
+    // Check current state
+    const isDark = htmlElement.classList.contains("dark");
+    console.log("Current is dark?", isDark);
+
+    if (isDark) {
+      // Dark से Light करो
       htmlElement.classList.remove("dark");
-      localStorage.setItem("dark-mode", "false");
+      localStorage.setItem("theme", "light");
       setDarkMode(false);
-      console.log("Switched to LIGHT mode");
+      console.log("🌞 Switched to LIGHT mode");
     } else {
-      // Currently light mode है, dark mode करें
+      // Light से Dark करो
       htmlElement.classList.add("dark");
-      localStorage.setItem("dark-mode", "true");
+      localStorage.setItem("theme", "dark");
       setDarkMode(true);
-      console.log("Switched to DARK mode");
+      console.log("🌙 Switched to DARK mode");
     }
 
-    // Debug के लिए check करें
-    console.log("HTML classes after toggle:", htmlElement.className);
-    console.log(
-      "LocalStorage after toggle:",
-      localStorage.getItem("dark-mode"),
-    );
+    // Debug info
+    console.log("🏷️ HTML classes now:", htmlElement.className);
+    console.log("💾 localStorage theme:", localStorage.getItem("theme"));
   };
 
   const getTimeOfDay = () => {
     const hour = new Date().getHours();
-    if (hour < 12) return "Good Morning Princess";
-    if (hour < 18) return "Good Afternoon Princess";
-    if (hour < 20) return "Good Evening Princess";
+    if (hour < 12) return "Good Morning";
+    if (hour < 18) return "Good Afternoon";
+    if (hour < 20) return "Good Evening";
     return "Hello Princess";
   };
 
@@ -79,9 +87,9 @@ export default function AdminHeader() {
   };
 
   return (
-    <header className="bg-white dark:bg-gray-900 shadow-lg sticky top-0 z-50 border-b border-gray-200 dark:border-gray-800 transition-colors duration-300">
+    <header className="bg-white dark:bg-gray-900 shadow-lg sticky top-0 z-50 border-b border-gray-200 dark:border-gray-800">
       <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between px-4 lg:px-8 py-4">
-        {/* Left Section - Welcome & Stats */}
+        {/* Left Section */}
         <div className="flex-1 mb-4 lg:mb-0">
           <div className="flex flex-col lg:flex-row lg:items-center gap-3 lg:gap-6">
             <div>
@@ -126,7 +134,7 @@ export default function AdminHeader() {
           </div>
         </div>
 
-        {/* Right Section - Search, Controls, Profile */}
+        {/* Right Section */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full lg:w-auto">
           {/* Search Bar */}
           <div className="relative flex-1 sm:flex-initial">
@@ -136,7 +144,7 @@ export default function AdminHeader() {
             <input
               type="text"
               placeholder="Search dashboard..."
-              className="w-full sm:w-64 pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-cyan-500 focus:border-transparent text-sm transition-all duration-300 dark:text-white dark:placeholder-gray-400"
+              className="w-full sm:w-64 pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-cyan-500 focus:border-transparent text-sm dark:text-white dark:placeholder-gray-400"
             />
           </div>
 
@@ -150,24 +158,16 @@ export default function AdminHeader() {
               <HelpCircle className="h-4 w-4 text-gray-600 dark:text-gray-300" />
             </button>
 
-            {/* DARK MODE TOGGLE BUTTON - FIXED & WORKING */}
+            {/* ✅✅✅ DARK MODE TOGGLE BUTTON - SIMPLE & WORKING ✅✅✅ */}
             <button
               onClick={toggleDarkMode}
-              className="p-2.5 rounded-xl bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700 transition-all duration-300 hover:shadow-md group relative"
+              className="p-2.5 rounded-xl bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700 transition-all duration-300 hover:shadow-md"
               title={darkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
             >
-              {/* Sun Icon for Dark Mode (visible when dark mode is ON) */}
               {darkMode ? (
-                <div className="relative">
-                  <Sun className="h-4 w-4 text-amber-500 group-hover:rotate-45 transition-transform duration-300" />
-                  <span className="absolute -top-1 -right-1 w-2 h-2 bg-amber-400 rounded-full animate-ping opacity-75"></span>
-                </div>
+                <Sun className="h-4 w-4 text-amber-500" />
               ) : (
-                /* Moon Icon for Light Mode (visible when dark mode is OFF) */
-                <div className="relative">
-                  <Moon className="h-4 w-4 text-gray-600 dark:text-gray-300 group-hover:rotate-12 transition-transform duration-300" />
-                  <span className="absolute -top-1 -right-1 w-2 h-2 bg-blue-400 rounded-full animate-ping opacity-75"></span>
-                </div>
+                <Moon className="h-4 w-4 text-gray-600 dark:text-gray-300" />
               )}
             </button>
 

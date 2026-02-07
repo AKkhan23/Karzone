@@ -60,7 +60,7 @@ export default function Profile() {
   };
 
     const handleCloseModal = () => {
-      dispatch(fetchUserBookings());
+    dispatch(fetchUserBookings());
     setShowConfirmModal(false);
     setSelectedBookingId(null);
     setCancellingId(null);

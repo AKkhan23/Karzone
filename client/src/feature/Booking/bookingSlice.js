@@ -23,7 +23,7 @@ export const AddBooking = createAsyncThunk(
 );
 
 // =======================
-// FETCH BOOKINGS
+// FETCH BOOKINGS here we fetch only the bookings of the logged-in user
 // =======================
 export const fetchUserBookings = createAsyncThunk(
   "booking/fetchUserBookings",

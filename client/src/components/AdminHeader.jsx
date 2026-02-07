@@ -67,9 +67,9 @@ export default function AdminHeader() {
 
   const getTimeOfDay = () => {
     const hour = new Date().getHours();
-    if (hour < 12) return "Good Morning";
-    if (hour < 18) return "Good Afternoon";
-    if (hour < 20) return "Good Evening";
+    if (hour < 12) return "Good Morning Princess";
+    if (hour < 18) return "Good Afternoon Princess";
+    if (hour < 20) return "Good Evening Princess";
     return "Hello Princess";
   };
 

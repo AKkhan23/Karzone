@@ -1,4 +1,4 @@
- import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import bookingService from "./bookingService";
 
 // =======================
@@ -16,10 +16,10 @@ export const AddBooking = createAsyncThunk(
       return await bookingService.addbooking(payload, token);
     } catch (error) {
       return thunkAPI.rejectWithValue(
-        error.response?.data?.message || "Booking failed!"
+        error.response?.data?.message || "Booking failed!",
       );
     }
-  }
+  },
 );
 
 // =======================
@@ -33,10 +33,10 @@ export const fetchUserBookings = createAsyncThunk(
       return await bookingService.getUserBookings(token);
     } catch (error) {
       return thunkAPI.rejectWithValue(
-        error.response?.data?.message || "Error fetching your bookings"
+        error.response?.data?.message || "Error fetching your bookings",
       );
     }
-  }
+  },
 );
 
 // =======================
@@ -48,13 +48,12 @@ export const cancelBooking = createAsyncThunk(
     try {
       const token = thunkAPI.getState().auth.user?.token;
       return await bookingService.cancelBooking(id, token);
-;
     } catch (error) {
       return thunkAPI.rejectWithValue(
-        error.response?.data?.message || "Failed to cancel booking"
+        error.response?.data?.message || "Failed to cancel booking",
       );
     }
-  }
+  },
 );
 
 const initialState = {
@@ -127,9 +126,7 @@ const bookingSlice = createSlice({
         const cancelledBooking = action.payload.booking;
 
         state.bookings = state.bookings.map((b) =>
-          b._id === cancelledBooking._id
-            ? { ...b, status: "Cancelled" }
-            : b
+          b._id === cancelledBooking._id ? { ...b, status: "Cancelled" } : b,
         );
 
         state.message =

@@ -1,15 +1,34 @@
-import { User, Mail, Phone, Calendar, DollarSign, IndianRupee, IndianRupeeIcon, Shield, CreditCard, MapPin, Car, Clock, CheckCircle, Package } from 'lucide-react';
-import { useSelector, useDispatch } from 'react-redux';
-import { useEffect, useState } from 'react';
-import { fetchUserBookings } from "../feature/Booking/bookingSlice";
+import {
+  User,
+  Mail,
+  Phone,
+  Calendar,
+  IndianRupeeIcon,
+  X,
+  AlertCircle,
+} from "lucide-react";
+import { useSelector, useDispatch } from "react-redux";
+import { useEffect, useState } from "react";
+import {
+  fetchUserBookings,
+  cancelBooking,
+  resetBookingState,
+} from "../feature/Booking/bookingSlice";
 
 export default function Profile() {
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
-  const [activeTab, setActiveTab] = useState('bookings');
-  
-  const bookings = useSelector((state) => state.booking.bookings) || [];
-  const UserBookings = bookings.filter(booking => booking.user?._id === user?.id);
+  const { bookings, isLoading, isSuccess, isError, message } = useSelector(
+    (state) => state.booking,
+  );
+
+  const [cancellingId, setCancellingId] = useState(null);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [selectedBookingId, setSelectedBookingId] = useState(null);
+
+  const UserBookings = bookings.filter(
+    (booking) => booking.user?._id === user?.id,
+  );
 
   useEffect(() => {
     if (user?.token) {
@@ -17,344 +36,262 @@ export default function Profile() {
     }
   }, [user, dispatch]);
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'Approved':
-        return 'bg-gradient-to-r from-emerald-500 to-green-500';
-      case 'Pending':
-        return 'bg-gradient-to-r from-amber-500 to-yellow-500';
-      case 'Completed':
-        return 'bg-gradient-to-r from-blue-500 to-cyan-500';
-      case 'Cancelled':
-        return 'bg-gradient-to-r from-red-500 to-rose-500';
-      default:
-        return 'bg-gradient-to-r from-gray-500 to-slate-500';
+  useEffect(() => {
+    if (isSuccess && cancellingId) {
+      setCancellingId(null);
+      setShowConfirmModal(false);
+      setSelectedBookingId(null);
+
+      // Show success message briefly
+      setTimeout(() => {
+        dispatch(resetBookingState());
+      }, 3000);
+    }
+
+    if (isError && cancellingId) {
+      setCancellingId(null);
+    }
+  }, [isSuccess, isError, cancellingId, dispatch]);
+
+  const handleCancelClick = (bookingId) => {
+    setSelectedBookingId(bookingId);
+    setShowConfirmModal(true);
+  };
+
+  const handleConfirmCancel = async () => {
+    if (selectedBookingId) {
+      setCancellingId(selectedBookingId);
+      await dispatch(cancelBooking(selectedBookingId));
     }
   };
 
-  const getStatusIcon = (status) => {
+  const handleCloseModal = () => {
+    setShowConfirmModal(false);
+    setSelectedBookingId(null);
+  };
+
+  const getStatusColor = (status) => {
     switch (status) {
-      case 'Approved':
-        return <CheckCircle className="h-5 w-5" />;
-      case 'Pending':
-        return <Clock className="h-5 w-5" />;
-      case 'Completed':
-        return <Package className="h-5 w-5" />;
+      case "Approved":
+        return "bg-green-100 text-green-800 border-green-200";
+      case "Pending":
+        return "bg-yellow-100 text-yellow-800 border-yellow-200";
+      case "Completed":
+        return "bg-blue-100 text-blue-800 border-blue-200";
+      case "Cancelled":
+        return "bg-red-100 text-red-800 border-red-200";
       default:
-        return <Shield className="h-5 w-5" />;
+        return "bg-gray-100 text-gray-800 border-gray-200";
     }
   };
 
   const formatDate = (dateString) => {
     if (!dateString) return "N/A";
     return new Date(dateString).toLocaleDateString("en-GB", {
-      day: 'numeric',
-      month: 'short',
-      year: 'numeric'
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
     });
   };
 
+  const canCancelBooking = (booking) => {
+    return booking.status === "Pending" || booking.status === "Approved";
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/30 py-8 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto">
-        {/* Header with Profile Stats */}
-        <div className="mb-10">
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-3">
-                Welcome back, <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">{user?.name?.split(' ')[0]}</span>
-              </h1>
-              <p className="text-gray-600 text-lg">Manage your bookings and profile information</p>
-            </div>
-            
-            <div className="hidden lg:flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-50 to-blue-100 rounded-full">
-              <Shield className="h-5 w-5 text-blue-600" />
-              <span className="font-semibold text-blue-700">Member since 2024</span>
-            </div>
-          </div>
-          
-          {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div className="bg-gradient-to-br from-white to-blue-50 rounded-2xl p-6 shadow-lg border border-blue-100 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-              <div className="flex items-center justify-between mb-4">
-                <div className="p-3 bg-blue-100 rounded-xl">
-                  <Car className="h-7 w-7 text-blue-600" />
-                </div>
-                <span className="text-sm font-medium text-blue-600 bg-blue-50 px-3 py-1 rounded-full">
-                  Active
-                </span>
-              </div>
-              <h3 className="text-3xl font-bold text-gray-900 mb-2">
-                {UserBookings.filter(b => b.status === 'Approved').length}
-              </h3>
-              <p className="text-gray-600">Active Bookings</p>
-            </div>
-            
-            <div className="bg-gradient-to-br from-white to-emerald-50 rounded-2xl p-6 shadow-lg border border-emerald-100 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-              <div className="flex items-center justify-between mb-4">
-                <div className="p-3 bg-emerald-100 rounded-xl">
-                  <CheckCircle className="h-7 w-7 text-emerald-600" />
-                </div>
-                <span className="text-sm font-medium text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full">
-                  History
-                </span>
-              </div>
-              <h3 className="text-3xl font-bold text-gray-900 mb-2">
-                {UserBookings.filter(b => b.status === 'Completed').length}
-              </h3>
-              <p className="text-gray-600">Completed Trips</p>
-            </div>
-            
-            <div className="bg-gradient-to-br from-white to-purple-50 rounded-2xl p-6 shadow-lg border border-purple-100 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-              <div className="flex items-center justify-between mb-4">
-                <div className="p-3 bg-purple-100 rounded-xl">
-                  <CreditCard className="h-7 w-7 text-purple-600" />
-                </div>
-                <span className="text-sm font-medium text-purple-600 bg-purple-50 px-3 py-1 rounded-full">
-                  Total
-                </span>
-              </div>
-              <h3 className="text-3xl font-bold text-gray-900 mb-2">
-                {UserBookings.length}
-              </h3>
-              <p className="text-gray-600">All Bookings</p>
-            </div>
-          </div>
+    <div className="py-16 min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">My Profile</h1>
+          <p className="text-gray-600">
+            Manage your account and view your bookings
+          </p>
         </div>
 
+        {/* Success/Error Messages */}
+        {isSuccess && message && (
+          <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg flex items-center space-x-3">
+            <div className="flex-shrink-0">
+              <svg
+                className="h-5 w-5 text-green-600"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            </div>
+            <p className="text-sm font-medium text-green-800">{message}</p>
+          </div>
+        )}
+
+        {isError && message && (
+          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center space-x-3">
+            <AlertCircle className="h-5 w-5 text-red-600" />
+            <p className="text-sm font-medium text-red-800">{message}</p>
+          </div>
+        )}
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* LEFT USER CARD - Enhanced */}
+          {/* LEFT USER CARD */}
           <div className="lg:col-span-1">
-            <div className="bg-gradient-to-b from-white to-blue-50/50 rounded-3xl shadow-2xl p-8 border border-blue-100/50 relative overflow-hidden">
-              {/* Background Pattern */}
-              <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-blue-400/10 to-purple-400/5 rounded-full -translate-y-20 translate-x-20"></div>
-              
-              <div className="relative">
-                {/* Avatar Section */}
-                <div className="flex flex-col items-center mb-8">
-                  <div className="relative mb-6 group">
-                    <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full blur-xl opacity-70 group-hover:opacity-90 transition-opacity duration-500"></div>
-                    <div className="relative h-32 w-32 rounded-full bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center border-4 border-white shadow-2xl transform group-hover:scale-105 transition-transform duration-300">
-                      <User className="h-16 w-16 text-white" />
-                    </div>
-                    <div className="absolute -bottom-2 -right-2 w-10 h-10 bg-gradient-to-r from-emerald-500 to-green-500 rounded-full border-4 border-white flex items-center justify-center shadow-lg">
-                      <Shield className="h-4 w-4 text-white" />
-                    </div>
-                  </div>
-
-                  <h2 className="text-2xl font-bold text-gray-900 mb-2 text-center">{user?.name}</h2>
-                  <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-50 to-blue-100 rounded-full mb-6">
-                    <div className={`h-2 w-2 rounded-full ${user?.isAdmin ? 'bg-purple-500' : 'bg-blue-500'}`}></div>
-                    <span className="font-semibold text-blue-700">{user?.isAdmin ? 'Administrator' : 'Premium Member'}</span>
-                  </div>
+            <div className="bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
+              <div className="flex flex-col items-center">
+                <div className="h-28 w-28 rounded-full bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center mb-4 shadow-lg">
+                  <User className="h-14 w-14 text-white" />
                 </div>
 
-                {/* Contact Info */}
-                <div className="space-y-4">
-                  <div className="group p-4 bg-gradient-to-r from-white to-blue-50/70 rounded-2xl border border-blue-100 hover:border-blue-300 hover:shadow-lg transition-all duration-300">
-                    <div className="flex items-center gap-4">
-                      <div className="p-3 bg-gradient-to-br from-blue-100 to-blue-50 rounded-xl group-hover:scale-110 transition-transform duration-300">
-                        <Mail className="h-5 w-5 text-blue-600" />
-                      </div>
-                      <div>
-                        <p className="text-xs text-gray-500 font-medium">Email Address</p>
-                        <p className="text-sm font-semibold text-gray-900 truncate">{user?.email}</p>
-                      </div>
+                <h2 className="text-2xl font-bold text-gray-900 mb-1">
+                  {user?.name}
+                </h2>
+                <span className="inline-block px-4 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-semibold mb-6">
+                  {user?.isAdmin ? "Administrator" : "Customer"}
+                </span>
+
+                <div className="w-full space-y-3">
+                  <div className="flex items-start space-x-3 p-4 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl border border-gray-200">
+                    <Mail className="h-5 w-5 text-blue-600 mt-0.5" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                        Email
+                      </p>
+                      <p className="text-sm font-medium text-gray-900 truncate">
+                        {user?.email}
+                      </p>
                     </div>
                   </div>
 
-                  <div className="group p-4 bg-gradient-to-r from-white to-emerald-50/70 rounded-2xl border border-emerald-100 hover:border-emerald-300 hover:shadow-lg transition-all duration-300">
-                    <div className="flex items-center gap-4">
-                      <div className="p-3 bg-gradient-to-br from-emerald-100 to-emerald-50 rounded-xl group-hover:scale-110 transition-transform duration-300">
-                        <Phone className="h-5 w-5 text-emerald-600" />
-                      </div>
-                      <div>
-                        <p className="text-xs text-gray-500 font-medium">Phone Number</p>
-                        <p className="text-sm font-semibold text-gray-900">{user?.phone || "Not provided"}</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="group p-4 bg-gradient-to-r from-white to-amber-50/70 rounded-2xl border border-amber-100 hover:border-amber-300 hover:shadow-lg transition-all duration-300">
-                    <div className="flex items-center gap-4">
-                      <div className="p-3 bg-gradient-to-br from-amber-100 to-amber-50 rounded-xl group-hover:scale-110 transition-transform duration-300">
-                        <MapPin className="h-5 w-5 text-amber-600" />
-                      </div>
-                      <div>
-                        <p className="text-xs text-gray-500 font-medium">Account Type</p>
-                        <p className="text-sm font-semibold text-gray-900">{user?.isAdmin ? 'Admin Account' : 'Regular Account'}</p>
-                      </div>
+                  <div className="flex items-start space-x-3 p-4 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl border border-gray-200">
+                    <Phone className="h-5 w-5 text-blue-600 mt-0.5" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                        Phone
+                      </p>
+                      <p className="text-sm font-medium text-gray-900">
+                        {user?.phone || "Not provided"}
+                      </p>
                     </div>
                   </div>
                 </div>
 
-                {/* Membership Badge */}
-                <div className="mt-8 p-6 bg-gradient-to-r from-slate-900 to-gray-800 rounded-2xl text-white">
-                  <div className="flex items-center justify-between mb-3">
-                    <h3 className="font-bold text-lg">CarHub Pro</h3>
-                    <div className="px-3 py-1 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full text-xs font-bold">
-                      GOLD
+                <div className="w-full mt-6 pt-6 border-t border-gray-200">
+                  <div className="grid grid-cols-2 gap-4 text-center">
+                    <div className="p-3 bg-blue-50 rounded-lg">
+                      <p className="text-2xl font-bold text-blue-700">
+                        {UserBookings.length}
+                      </p>
+                      <p className="text-xs text-gray-600 mt-1">
+                        Total Bookings
+                      </p>
+                    </div>
+                    <div className="p-3 bg-green-50 rounded-lg">
+                      <p className="text-2xl font-bold text-green-700">
+                        {
+                          UserBookings.filter((b) => b.status === "Completed")
+                            .length
+                        }
+                      </p>
+                      <p className="text-xs text-gray-600 mt-1">Completed</p>
                     </div>
                   </div>
-                  <p className="text-sm text-gray-300">Unlock exclusive benefits and priority support</p>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* RIGHT BOOKINGS SECTION - Enhanced */}
+          {/* RIGHT BOOKINGS TABLE */}
           <div className="lg:col-span-2">
-            <div className="bg-gradient-to-b from-white to-blue-50/30 rounded-3xl shadow-2xl p-8 border border-blue-100/50">
-              {/* Section Header with Tabs */}
-              <div className="flex flex-col md:flex-row md:items-center justify-between mb-8">
-                <div>
-                  <h2 className="text-3xl font-bold text-gray-900 mb-2">Booking History</h2>
-                  <p className="text-gray-600">Track and manage all your car rentals</p>
-                </div>
-                
-                <div className="flex items-center gap-2 mt-4 md:mt-0 bg-gray-100 p-1 rounded-full">
-                  <button 
-                    onClick={() => setActiveTab('bookings')}
-                    className={`px-6 py-2 rounded-full font-medium transition-all duration-300 ${
-                      activeTab === 'bookings' 
-                        ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg' 
-                        : 'text-gray-600 hover:text-gray-900'
-                    }`}
-                  >
-                    All Bookings
-                  </button>
-                  <button 
-                    onClick={() => setActiveTab('active')}
-                    className={`px-6 py-2 rounded-full font-medium transition-all duration-300 ${
-                      activeTab === 'active' 
-                        ? 'bg-gradient-to-r from-emerald-600 to-green-600 text-white shadow-lg' 
-                        : 'text-gray-600 hover:text-gray-900'
-                    }`}
-                  >
-                    Active
-                  </button>
-                </div>
+            <div className="bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold text-gray-900">
+                  My Bookings
+                </h2>
+                <span className="text-sm text-gray-500">
+                  {UserBookings.length} total
+                </span>
               </div>
 
-              {/* Bookings List */}
               {UserBookings?.length > 0 ? (
-                <div className="space-y-6">
+                <div className="space-y-4">
                   {UserBookings?.map((booking) => (
-                    <div 
-                      key={booking._id} 
-                      className="group bg-gradient-to-r from-white to-blue-50/50 rounded-2xl p-6 border border-gray-200 hover:border-blue-300 hover:shadow-2xl transition-all duration-500 hover:-translate-y-1 relative overflow-hidden"
+                    <div
+                      key={booking._id}
+                      className="border border-gray-200 rounded-xl p-6 hover:shadow-xl hover:border-blue-300 transition-all duration-300 bg-gradient-to-r from-white to-gray-50"
                     >
-                      {/* Background Hover Effect */}
-                      <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                      
-                      <div className="relative">
-                        {/* Booking Header */}
-                        <div className="flex flex-col md:flex-row md:items-center justify-between mb-6">
-                          <div className="flex items-center gap-4 mb-4 md:mb-0">
-                            <div className="p-3 bg-gradient-to-br from-blue-100 to-blue-50 rounded-xl">
-                              <Car className="h-6 w-6 text-blue-600" />
-                            </div>
-                            <div>
-                              <h3 className="text-xl font-bold text-gray-900">
-                                {booking.car?.name || "Premium Car"}
-                              </h3>
-                              <p className="text-sm text-gray-500">Booking ID: <span className="font-mono">#{booking._id?.slice(-8)}</span></p>
-                            </div>
-                          </div>
-
-                          <div className="flex items-center gap-3">
-                            <div className={`flex items-center gap-2 px-4 py-2 rounded-full text-white font-semibold ${getStatusColor(booking.status)}`}>
-                              {getStatusIcon(booking.status)}
-                              <span>{booking.status}</span>
-                            </div>
-                            <div className="hidden lg:block h-8 w-px bg-gray-300"></div>
-                          </div>
+                      <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-5">
+                        <div>
+                          <h3 className="text-xl font-bold text-gray-900 mb-1">
+                            {booking.car?.name || "Car Name"}
+                          </h3>
+                          <p className="text-xs text-gray-500 font-mono">
+                            ID: #{booking._id.slice(-8)}
+                          </p>
                         </div>
 
-                        {/* Booking Details Grid */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                          <div className="space-y-2">
-                            <div className="flex items-center gap-2 text-gray-500">
-                              <Calendar className="h-4 w-4" />
-                              <span className="text-xs font-medium">START DATE</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <div className="p-2 bg-gradient-to-br from-blue-100 to-blue-50 rounded-lg">
-                                <Calendar className="h-5 w-5 text-blue-600" />
-                              </div>
-                              <div>
-                                <p className="text-lg font-bold text-gray-900">{formatDate(booking.startDate)}</p>
-                                <p className="text-xs text-gray-500">Pickup</p>
-                              </div>
-                            </div>
-                          </div>
+                        <div className="flex items-center space-x-3 mt-3 md:mt-0">
+                          <span
+                            className={`inline-block px-4 py-2 rounded-full text-sm font-semibold border ${getStatusColor(booking.status)}`}
+                          >
+                            {booking.status}
+                          </span>
 
-                          <div className="space-y-2">
-                            <div className="flex items-center gap-2 text-gray-500">
-                              <Calendar className="h-4 w-4" />
-                              <span className="text-xs font-medium">END DATE</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <div className="p-2 bg-gradient-to-br from-emerald-100 to-emerald-50 rounded-lg">
-                                <Calendar className="h-5 w-5 text-emerald-600" />
-                              </div>
-                              <div>
-                                <p className="text-lg font-bold text-gray-900">{formatDate(booking.endDate)}</p>
-                                <p className="text-xs text-gray-500">Return</p>
-                              </div>
-                            </div>
-                          </div>
-
-                          <div className="space-y-2">
-                            <div className="flex items-center gap-2 text-gray-500">
-                              <Clock className="h-4 w-4" />
-                              <span className="text-xs font-medium">DURATION</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <div className="p-2 bg-gradient-to-br from-purple-100 to-purple-50 rounded-lg">
-                                <Clock className="h-5 w-5 text-purple-600" />
-                              </div>
-                              <div>
-                                <p className="text-lg font-bold text-gray-900">{booking.totalDays} days</p>
-                                <p className="text-xs text-gray-500">Total Rental</p>
-                              </div>
-                            </div>
-                          </div>
-
-                          <div className="space-y-2">
-                            <div className="flex items-center gap-2 text-gray-500">
-                              <IndianRupeeIcon className="h-4 w-4" />
-                              <span className="text-xs font-medium">TOTAL PRICE</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <div className="p-2 bg-gradient-to-br from-amber-100 to-amber-50 rounded-lg">
-                                <IndianRupeeIcon className="h-5 w-5 text-amber-600" />
-                              </div>
-                              <div>
-                                <p className="text-lg font-bold text-gray-900">₹{booking.totalPrice}</p>
-                                <p className="text-xs text-gray-500">All inclusive</p>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Divider */}
-                        <div className="h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent my-6"></div>
-
-                        {/* Action Buttons */}
-                        <div className="flex items-center justify-between">
-                          <div className="text-sm text-gray-500">
-                            Booked on: {formatDate(booking.createdAt)}
-                          </div>
-                          <div className="flex items-center gap-3">
-                            <button className="px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors duration-300">
-                              View Details
+                          {canCancelBooking(booking) && (
+                            <button
+                              onClick={() => handleCancelClick(booking._id)}
+                              disabled={cancellingId === booking._id}
+                              className="group relative inline-flex items-center px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium text-sm transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg"
+                            >
+                              <X className="h-4 w-4 mr-1" />
+                              {cancellingId === booking._id
+                                ? "Cancelling..."
+                                : "Cancel"}
                             </button>
-                            {booking.status === 'Pending' && (
-                              <button className="px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-red-500 to-rose-500 rounded-lg hover:shadow-lg transition-all duration-300">
-                                Cancel Booking
-                              </button>
-                            )}
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="flex items-start space-x-3 p-3 bg-white rounded-lg border border-gray-100">
+                          <Calendar className="h-5 w-5 text-blue-600 mt-0.5" />
+                          <div>
+                            <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">
+                              Start Date
+                            </p>
+                            <p className="text-sm font-semibold text-gray-900">
+                              {formatDate(booking.startDate)}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="flex items-start space-x-3 p-3 bg-white rounded-lg border border-gray-100">
+                          <Calendar className="h-5 w-5 text-blue-600 mt-0.5" />
+                          <div>
+                            <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">
+                              End Date
+                            </p>
+                            <p className="text-sm font-semibold text-gray-900">
+                              {formatDate(booking.endDate)}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="flex items-start space-x-3 p-3 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg border border-blue-200">
+                          <IndianRupeeIcon className="h-5 w-5 text-blue-700 mt-0.5" />
+                          <div>
+                            <p className="text-xs text-blue-700 font-medium uppercase tracking-wide">
+                              Total Price
+                            </p>
+                            <p className="text-sm font-bold text-blue-900">
+                              ₹{booking.totalPrice}
+                            </p>
+                            <p className="text-xs text-blue-600 mt-0.5">
+                              {booking.totalDays}{" "}
+                              {booking.totalDays === 1 ? "day" : "days"}
+                            </p>
                           </div>
                         </div>
                       </div>
@@ -362,24 +299,32 @@ export default function Profile() {
                   ))}
                 </div>
               ) : (
-                /* Empty State - Enhanced */
-                <div className="text-center py-16 px-4">
-                  <div className="relative inline-block mb-6">
-                    <div className="absolute inset-0 bg-gradient-to-r from-blue-400/20 to-purple-400/20 rounded-full blur-xl"></div>
-                    <div className="relative p-8 bg-gradient-to-br from-blue-50 to-purple-50 rounded-3xl border border-blue-200">
-                      <Car className="h-20 w-20 text-gray-300 mx-auto mb-4" />
-                    </div>
-                  </div>
-                  <h3 className="text-2xl font-bold text-gray-900 mb-3">No bookings yet</h3>
-                  <p className="text-gray-600 mb-8 max-w-md mx-auto">
-                    Start your journey by booking your first car. Explore our premium collection of vehicles.
+                <div className="text-center py-16 bg-gradient-to-br from-gray-50 to-white rounded-xl border border-gray-200">
+                  <Calendar className="h-20 w-20 text-gray-300 mx-auto mb-4" />
+                  <p className="text-xl font-semibold text-gray-700 mb-2">
+                    No bookings yet
                   </p>
-                  <a 
-                    href="/cars" 
-                    className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl font-bold hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300"
+                  <p className="text-gray-500 mb-6">
+                    Start your journey by booking a car today!
+                  </p>
+                  <a
+                    href="/cars"
+                    className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg font-semibold hover:from-blue-700 hover:to-blue-800 transition-all duration-200 shadow-lg hover:shadow-xl"
                   >
-                    <Car className="h-5 w-5" />
-                    Browse Available Cars
+                    Browse Cars
+                    <svg
+                      className="ml-2 h-5 w-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M13 7l5 5m0 0l-5 5m5-5H6"
+                      />
+                    </svg>
                   </a>
                 </div>
               )}
@@ -387,6 +332,59 @@ export default function Profile() {
           </div>
         </div>
       </div>
+
+      {/* Confirmation Modal */}
+      {showConfirmModal && (
+        <div className="fixed inset-0 z-50 overflow-y-auto">
+          <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+            {/* Background overlay */}
+            <div
+              className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75"
+              onClick={handleCloseModal}
+            ></div>
+
+            {/* Modal panel */}
+            <div className="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+              <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                <div className="sm:flex sm:items-start">
+                  <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
+                    <AlertCircle className="h-6 w-6 text-red-600" />
+                  </div>
+                  <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                    <h3 className="text-lg leading-6 font-bold text-gray-900">
+                      Cancel Booking
+                    </h3>
+                    <div className="mt-2">
+                      <p className="text-sm text-gray-600">
+                        Are you sure you want to cancel this booking? This
+                        action cannot be undone.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse gap-3">
+                <button
+                  type="button"
+                  disabled={cancellingId !== null}
+                  onClick={handleConfirmCancel}
+                  className="w-full inline-flex justify-center rounded-lg border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                >
+                  {cancellingId ? "Cancelling..." : "Yes, Cancel Booking"}
+                </button>
+                <button
+                  type="button"
+                  disabled={cancellingId !== null}
+                  onClick={handleCloseModal}
+                  className="mt-3 w-full inline-flex justify-center rounded-lg border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:w-auto sm:text-sm transition-all"
+                >
+                  No, Keep Booking
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -425,7 +425,7 @@ export default function AddCar() {
               <button
                 type="button"
                 onClick={handleReset}
-                className="flex-1 flex items-center justify-center gap-3 px-6 py-3.5 border-2 border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-50 transition-all duration-300"
+                className="flex-1 flex items-center justify-center gap-4 px-6 py-3.5 border-2 border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-50 transition-all duration-300"
               >
                 <RotateCcw className="h-5 w-5" />
                 <span>Reset Form</span>
